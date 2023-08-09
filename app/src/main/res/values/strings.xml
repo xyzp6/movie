@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">本地视频</string>
+    <string name="loacl">本地</string>
+    <string name="settings">设置</string>
+    <string name="movie_name">电影名</string>
+    <string name="folder_name">文件夹名</string>
+
+    <string name="speed">倍速</string>
+    <string name="list">列表</string>
+    <string name="audio_track">音频轨道</string>
+    <string name="subtitle_track">字幕轨道</string>
+
+    <string name="horizontal_layout">列表布局</string>
+
+    <string name="id">标识符</string>
+    <string name="title">标题</string>
+    <string name="video_details">ID: %1$d\n标题: %2$s\n专辑: %3$s\n艺术家: %4$s\n显示名称: %5$s\nMIME 类型: %6$s\n路径: %7$s\n大小: %8$d\n时长: %9$d\n文件夹名称: %10$s</string>
+
+    <string name="searchbar_hint">搜索</string>
+    <string name="subtitle">字幕</string>
+</resources>

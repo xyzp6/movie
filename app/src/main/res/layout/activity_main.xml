@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity">
+
+    <com.google.android.material.navigationrail.NavigationRailView
+        android:id="@+id/navigation_rail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        app:menu="@menu/navigation_rail_menu" />
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@+id/navigation_rail"
+        android:layout_alignParentEnd="true"
+        android:orientation="horizontal">
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/search_CoordinatorLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/search_appbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.search.SearchBar
+                    android:id="@+id/search_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/searchbar_hint" />
+            </com.google.android.material.appbar.AppBarLayout>
+            <com.google.android.material.search.SearchView
+                android:id="@+id/search_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/searchbar_hint"
+                app:layout_anchor="@id/search_bar">
+                <!-- Search suggestions/results go here (ScrollView, RecyclerView, etc.). -->
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/search_LinearProgressIndicator"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:indeterminate="true" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/search_recyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            </com.google.android.material.search.SearchView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <LinearLayout
+            android:id="@+id/settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switch_horizontal_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:checked="true"
+                android:text="@string/horizontal_layout"/>
+        </LinearLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <View
+            android:id="@+id/side_sheet_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#80000000"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/standard_side_sheet"
+            style="@style/Widget.Material3.SideSheet"
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_behavior="com.google.android.material.sidesheet.SideSheetBehavior">
+            <include layout="@layout/slide_sheet_main"/>
+        </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</RelativeLayout>

@@ -1,0 +1,86 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <androidx.media3.ui.PlayerView
+        android:id="@+id/video"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        app:use_controller="false" />
+
+    <RelativeLayout
+        android:id="@+id/top_controller"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <ImageView
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow_back_fill0_wght400_grad0_opsz48" />
+
+        <ImageView
+            android:id="@+id/moreButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/more_vert_fill0_wght400_grad0_opsz48" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/buttom_controller"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <LinearLayout
+            android:id="@+id/seek_buttom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical" >
+            <ImageView
+                android:id="@+id/pervButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/skip_previous_fill1_wght400_grad0_opsz48" />
+
+            <ImageView
+                android:id="@+id/playButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/pause_fill1_wght400_grad0_opsz48" />
+
+            <ImageView
+                android:id="@+id/nextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/skip_next_fill1_wght400_grad0_opsz48" />
+
+            <TextView
+                android:id="@+id/currentTimeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white" />
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/totalTimeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

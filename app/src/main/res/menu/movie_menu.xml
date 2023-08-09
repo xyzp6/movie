@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/speed"
+        android:enabled="true"
+        android:title="@string/speed"/>
+    <item
+        android:id="@+id/movie_item"
+        android:enabled="true"
+        android:title="@string/list"/>
+    <item
+        android:id="@+id/audio_track"
+        android:enabled="true"
+        android:title="@string/audio_track"/>
+    <item
+        android:id="@+id/subtitle_track"
+        android:enabled="true"
+        android:title="@string/subtitle_track"/>
+</menu>
