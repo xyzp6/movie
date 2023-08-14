@@ -4,6 +4,8 @@
     <string name="settings">设置</string>
     <string name="movie_name">电影名</string>
     <string name="folder_name">文件夹名</string>
+    <string name="online_link">在线视频</string>
+    <string name="online_dialog_url">URL</string>
 
     <string name="speed">倍速</string>
     <string name="list">列表</string>

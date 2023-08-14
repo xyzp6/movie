@@ -65,6 +65,7 @@ public class PlayerActivity extends Activity {
     //服务于页面滑动
     private int x=0,y=0, operationType = 0; //xy初始坐标,operationType  0: 未知, 1: 改变亮度, 2: 改变音量, 3: 改变进度, 4: 下拉通知栏
     private long current = 0; // 初始进度
+    private String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,10 +84,11 @@ public class PlayerActivity extends Activity {
 
         //获取传递的值
         Intent intent = getIntent();
+        url=intent.getStringExtra("movie_url");
         int position = intent.getIntExtra("movie_position",0);
         movieid = intent.getIntExtra("movie_id",0);
         videoList= (List<Video>) intent.getSerializableExtra("movie_video_list");
-        prepare(position);
+        prepare(position,url);
 
         if(savedInstanceState != null) {
             boolean playSituation = sharedPreferences.getBoolean("play_situation", false);
@@ -120,9 +122,11 @@ public class PlayerActivity extends Activity {
                 // 获取上一个媒体项目的播放位置
                 long previousPosition = oldPosition.positionMs;
                 //保存当前进度
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putLong(String.valueOf(videoList.get(oldPosition.mediaItemIndex).getId()),previousPosition);
-                editor.apply();
+                if (url==null) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putLong(String.valueOf(videoList.get(oldPosition.mediaItemIndex).getId()),previousPosition);
+                    editor.apply();
+                }
             }
             //当一个视频切换到另一个视频时触发
             @Override
@@ -345,7 +349,7 @@ public class PlayerActivity extends Activity {
         slideDialog.setSlideSeekBar(volume*50,maxvolume*50);
     }
 
-    public void prepare(int position) {
+    public void prepare(int position,String url) {
         trackSelector = new DefaultTrackSelector(this);
 
         player = new ExoPlayer.Builder(this)
@@ -354,39 +358,32 @@ public class PlayerActivity extends Activity {
 
         videoView.setPlayer(player);
 
-//        // 创建字幕媒体项
-//        MediaItem.SubtitleConfiguration subtitle = new MediaItem.SubtitleConfiguration.Builder(Uri.parse(path))
-//                .setMimeType(MimeTypes.APPLICATION_SUBRIP) // 字幕格式
-//                .setLanguage("zh") // 语言
-//                .setSelectionFlags(C.SELECTION_FLAG_AUTOSELECT) // 选择标志
-//                .build();
-//
-//        // 创建媒体项并添加字幕配置
-//        MediaItem mediaItem = new MediaItem.Builder()
-//                .setUri(videoUri)
-//                .setSubtitleConfigurations(ImmutableList.of(subtitle))
-//                .build();
         //放入列表
-        List<MediaItem> mediaItems=new ArrayList<>();
-        for(Video video:videoList) {
-            MediaItem mediaItem=MediaItem.fromUri(video.getPath());
-            mediaItems.add(mediaItem);
-        }
-        player.addMediaItems(mediaItems);
-        player.setRepeatMode(Player.REPEAT_MODE_ALL);
-
-        //跳转进度
-        long currentposition=sharedPreferences.getLong(String.valueOf(movieid),0);
-        if(currentposition!=0) {
-            player.seekTo(position,currentposition);
-            Snackbar.make(findViewById(R.id.video), "从头开始", Snackbar.LENGTH_LONG).setAction("确认", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    player.seekTo(0);
-                }
-            }).setActionTextColor(getColor(R.color.purple_200)).show();
+        if(url!=null) {
+            MediaItem mediaItem=MediaItem.fromUri(url);
+            player.addMediaItem(mediaItem);
         } else {
-            player.seekTo(position,0);
+            List<MediaItem> mediaItems=new ArrayList<>();
+            for(Video video:videoList) {
+                MediaItem mediaItem=MediaItem.fromUri(video.getPath());
+                mediaItems.add(mediaItem);
+            }
+            player.addMediaItems(mediaItems);
+            player.setRepeatMode(Player.REPEAT_MODE_ALL);
+
+            //跳转进度
+            long currentposition=sharedPreferences.getLong(String.valueOf(movieid),0);
+            if(currentposition!=0) {
+                player.seekTo(position,currentposition);
+                Snackbar.make(findViewById(R.id.video), "从头开始", Snackbar.LENGTH_LONG).setAction("确认", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        player.seekTo(0);
+                    }
+                }).setActionTextColor(getColor(R.color.purple_200)).show();
+            } else {
+                player.seekTo(position,0);
+            }
         }
 
         //  准备播放
@@ -521,16 +518,18 @@ public class PlayerActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putLong(String.valueOf(videoList.get(player.getCurrentMediaItemIndex()).getId()),player.getCurrentPosition()); //保存当前进度
-        if (player.isPlaying()) {
-            editor.putBoolean("play_situation", true);
-            player.pause();
-            playButton.setImageResource(R.drawable.play_arrow_fill1_wght400_grad0_opsz48);
-        } else {
-            editor.putBoolean("play_situation", false);
+        if(url==null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putLong(String.valueOf(videoList.get(player.getCurrentMediaItemIndex()).getId()),player.getCurrentPosition()); //保存当前进度
+            if (player.isPlaying()) {
+                editor.putBoolean("play_situation", true);
+                player.pause();
+                playButton.setImageResource(R.drawable.play_arrow_fill1_wght400_grad0_opsz48);
+            } else {
+                editor.putBoolean("play_situation", false);
+            }
+            editor.apply();
         }
-        editor.apply();
     }
 
     @Override

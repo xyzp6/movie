@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
+import androidx.media3.common.PlaybackParameters;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -25,23 +27,31 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.color.DynamicColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigationrail.NavigationRailView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.search.SearchBar;
 import com.google.android.material.search.SearchView;
+import com.google.android.material.textfield.TextInputEditText;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -56,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private SearchView mainsearchview;
     private SearchBar mainsearchbar;
     private LinearProgressIndicator mainsearchlinearprogress;
+    private FloatingActionButton fabonline;
     private List<Video> searchlist,movielist;
     private SideSheetHelper sideSheetHelper;
     private ActivityResultLauncher<String> requestPermissionLauncher;
@@ -152,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
                     // SearchView 退出
                     searchstatus = false;
                 }
-                System.out.println(searchstatus);
             }
         });
 
@@ -185,6 +195,35 @@ public class MainActivity extends AppCompatActivity {
             }).start();
 
             return false;
+        });
+
+        //在线播放fab的监听事件
+        fabonline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 加载自定义布局
+                View dialogView = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_online, null);
+                TextInputEditText textInputEditText = dialogView.findViewById(R.id.online_textinput);
+
+                new MaterialAlertDialogBuilder(MainActivity.this)
+                        .setTitle("请输入一个网络URL进行播放")
+                        .setView(dialogView)
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+                                intent.putExtra("movie_url",textInputEditText.getText().toString());
+                                startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 处理取消按钮的点击事件
+                            }
+                        })
+                        .show();
+            }
         });
     }
 
@@ -319,6 +358,7 @@ public class MainActivity extends AppCompatActivity {
         searchrecyclerView=findViewById(R.id.search_recyclerview);
         mainsearchlinearprogress=findViewById(R.id.search_LinearProgressIndicator);
         searchCoordinatorLayout=findViewById(R.id.search_CoordinatorLayout);
+        fabonline=findViewById(R.id.floating_action_button_online);
     }
 
     /**

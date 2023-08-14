@@ -102,4 +102,21 @@
             <include layout="@layout/slide_sheet_main"/>
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <!-- fab -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floating_action_button_online"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:contentDescription="@string/online_link"
+            app:srcCompat="@drawable/link_fill0_wght400_grad0_opsz48"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 </RelativeLayout>

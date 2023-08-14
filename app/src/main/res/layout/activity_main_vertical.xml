@@ -11,7 +11,8 @@
         android:id="@+id/constraintlayout_top"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true" >
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/navigation_bottom">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/search_CoordinatorLayout"
@@ -73,14 +74,31 @@
                 android:text="@string/horizontal_layout"/>
         </LinearLayout>
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/navigation_bottom"
+        <!-- fab -->
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:menu="@menu/navigation_rail_menu"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:layout_height="match_parent" >
 
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/floating_action_button_online"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="16dp"
+                android:contentDescription="@string/online_link"
+                app:srcCompat="@drawable/link_fill0_wght400_grad0_opsz48"/>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 底部栏 -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navigation_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:menu="@menu/navigation_rail_menu"
+        android:layout_alignParentBottom="true"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -105,4 +123,5 @@
             <include layout="@layout/slide_sheet_main"/>
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 </RelativeLayout>
