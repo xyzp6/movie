@@ -40,15 +40,17 @@ import com.google.android.material.color.DynamicColors;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import bean.Video;
 
 
 public class PlayerActivity extends Activity {
-    private final List<String> audioList=new ArrayList<>();
-    private final List<String> subtitlelist=new ArrayList<>();
+    private final Set<TrackGroup> audioSet=new HashSet<>();
+    private final Set<TrackGroup> subtitleSet=new HashSet<>();
     private final Handler handler = new Handler();
     private SharedPreferences sharedPreferences;
     private PlayerView videoView;
@@ -259,7 +261,7 @@ public class PlayerActivity extends Activity {
                 PopupMenu popupMenu = new PopupMenu(PlayerActivity.this, v);
                 popupMenu.getMenuInflater().inflate(R.menu.movie_menu, popupMenu.getMenu());
                 // 设置菜单项的点击监听器
-                MovieMenu movieMenu=new MovieMenu(PlayerActivity.this,player,checkedItem,videoList,audioList,subtitlelist,trackSelector);
+                MovieMenu movieMenu=new MovieMenu(PlayerActivity.this,player,checkedItem,videoList,audioSet,subtitleSet,trackSelector);
                 popupMenu.setOnMenuItemClickListener(movieMenu);
                 popupMenu.show();
             }
@@ -401,12 +403,12 @@ public class PlayerActivity extends Activity {
                         if (C.TRACK_TYPE_AUDIO == mappedTrackInfo.getRendererType(i)) { //判断是否是音轨
                             for (int groupIndex = 0; groupIndex < rendererTrackGroups.length; groupIndex++) {
                                 TrackGroup trackGroup = rendererTrackGroups.get(groupIndex);
-                                audioList.add(trackGroup.getFormat(0).language);
+                                audioSet.add(trackGroup);
                             }
                         } else if (C.TRACK_TYPE_TEXT == mappedTrackInfo.getRendererType(i)) { //判断是否是字幕
                             for (int groupIndex = 0; groupIndex < rendererTrackGroups.length; groupIndex++) {
                                 TrackGroup trackGroup = rendererTrackGroups.get(groupIndex);
-                                subtitlelist.add(trackGroup.getFormat(0).language);
+                                subtitleSet.add(trackGroup);
                             }
                         }
 

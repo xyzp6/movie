@@ -7,30 +7,36 @@ import android.view.View;
 import android.widget.NumberPicker;
 import android.widget.PopupMenu;
 
+import androidx.media3.common.C;
 import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.TrackGroup;
+import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import bean.Video;
 
 public class MovieMenu implements PopupMenu.OnMenuItemClickListener {
     private final PlayerActivity playerActivity;
     private final ExoPlayer player;
+    private final List<Video> list;
+    private final Set<TrackGroup> audioSet,subtitleSet;
+    private final DefaultTrackSelector trackSelector;
     private int checkedItem,CurrentMediaItemIndex;
-    private List<Video> list;
-    private List<String> audioList,subtitlelist;
-    private DefaultTrackSelector trackSelector;
-    public MovieMenu(PlayerActivity playerActivity,ExoPlayer player,int checkedItem,List<Video> list,List<String> audioList,List<String> subtitlelist,DefaultTrackSelector trackSelector) {
+    private TrackSelectionOverride trackSelectionOverride=null;
+    public MovieMenu(PlayerActivity playerActivity,ExoPlayer player,int checkedItem,List<Video> list,Set<TrackGroup> audioSet,Set<TrackGroup> subtitleSet,DefaultTrackSelector trackSelector) {
         this.playerActivity = playerActivity;
         this.player=player;
         this.checkedItem=checkedItem;
         this.list=list;
-        this.audioList=audioList;
-        this.subtitlelist=subtitlelist;
+        this.audioSet=audioSet;
+        this.subtitleSet=subtitleSet;
         this.trackSelector=trackSelector;
         CurrentMediaItemIndex=player.getCurrentMediaItemIndex();
     }
@@ -122,9 +128,13 @@ public class MovieMenu implements PopupMenu.OnMenuItemClickListener {
                     .show();
         } else if(id==R.id.audio_track) {
             // 处理菜单项的点击事件
-            String[] items = new String[audioList.size()];
-            for (int i = 0; i < audioList.size(); i++) {
-                items[i] = audioList.get(i);
+            int i=0;
+            TrackGroup[] items = new TrackGroup[audioSet.size()];
+            String[] Stringitems = new String[audioSet.size()];
+            for (TrackGroup trackGroup : audioSet) {
+                items[i]=trackGroup;
+                Stringitems[i]=trackGroup.getFormat(0).label;
+                i++;
             }
 
             // 加载自定义布局
@@ -137,7 +147,7 @@ public class MovieMenu implements PopupMenu.OnMenuItemClickListener {
             numberPicker.setValue(1);
 
             // 设置 NumberPicker 的显示内容
-            numberPicker.setDisplayedValues(items);
+            numberPicker.setDisplayedValues(Stringitems);
 
             new MaterialAlertDialogBuilder(playerActivity)
                     .setTitle("音频轨道")
@@ -145,10 +155,11 @@ public class MovieMenu implements PopupMenu.OnMenuItemClickListener {
                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            trackSelectionOverride=new TrackSelectionOverride(items[numberPicker.getValue()-1],0);
                             //修改
                             trackSelector.setParameters(
                                     trackSelector.getParameters().buildUpon()
-                                            .setPreferredAudioLanguage(items[numberPicker.getValue()-1]));
+                                            .setOverrideForType(trackSelectionOverride));
                         }
                     })
                     .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -160,9 +171,13 @@ public class MovieMenu implements PopupMenu.OnMenuItemClickListener {
                     .show();
         } else if(id==R.id.subtitle_track) {
             // 处理菜单项的点击事件
-            String[] items = new String[subtitlelist.size()];
-            for (int i = 0; i < subtitlelist.size(); i++) {
-                items[i] = subtitlelist.get(i);
+            int i=0;
+            TrackGroup[] items = new TrackGroup[subtitleSet.size()];
+            String[] Stringitems = new String[subtitleSet.size()];
+            for (TrackGroup trackGroup : subtitleSet) {
+                items[i]=trackGroup;
+                Stringitems[i]=trackGroup.getFormat(0).label;
+                i++;
             }
 
             // 加载自定义布局
@@ -175,7 +190,7 @@ public class MovieMenu implements PopupMenu.OnMenuItemClickListener {
             numberPicker.setValue(1);
 
             // 设置 NumberPicker 的显示内容
-            numberPicker.setDisplayedValues(items);
+            numberPicker.setDisplayedValues(Stringitems);
 
             new MaterialAlertDialogBuilder(playerActivity)
                     .setTitle("字幕轨道")
@@ -183,10 +198,11 @@ public class MovieMenu implements PopupMenu.OnMenuItemClickListener {
                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            trackSelectionOverride=new TrackSelectionOverride(items[numberPicker.getValue()-1],0);
                             //修改
                             trackSelector.setParameters(
                                     trackSelector.getParameters().buildUpon()
-                                            .setPreferredTextLanguage(items[numberPicker.getValue()-1]));
+                                            .setOverrideForType(trackSelectionOverride));
                         }
                     })
                     .setNegativeButton("取消", new DialogInterface.OnClickListener() {
