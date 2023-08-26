@@ -8,6 +8,6 @@
     <item
         android:id="@+id/menu_settings"
         android:enabled="true"
-        android:icon="@drawable/settings_fill0_wght400_grad0_opsz48"
-        android:title="@string/settings"/>
+        android:icon="@drawable/history_fill0_wght400_grad0_opsz48"
+        android:title="@string/history"/>
 </menu>

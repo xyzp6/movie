@@ -33,7 +33,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -49,6 +51,8 @@ import com.google.android.material.navigationrail.NavigationRailView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.search.SearchBar;
 import com.google.android.material.search.SearchView;
+import com.google.android.material.tabs.TabItem;
+import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.Serializable;
@@ -58,6 +62,7 @@ import java.util.Objects;
 
 import bean.FolderAdapter;
 import bean.ListMovieAdapter;
+import bean.ListMovieHistoryAdapter;
 import bean.StatusBar;
 import bean.Video;
 import bean.VideoProvider;
@@ -70,12 +75,11 @@ public class MainActivity extends AppCompatActivity {
     private List<Video> searchlist,movielist;
     private SideSheetHelper sideSheetHelper;
     private ActivityResultLauncher<String> requestPermissionLauncher;
-    private RecyclerView recyclerView,searchrecyclerView;
+    private RecyclerView recyclerView,searchrecyclerView,historyrecyclerView;
     private CoordinatorLayout searchCoordinatorLayout;
-    private LinearLayout settings;
+    private LinearLayout history;
     private NavigationRailView navigationRailView;
     private BottomNavigationView bottomNavigationView;
-    private MaterialSwitch switch_horizontal_layout;
     private String folder_path;
     private VideoProvider provider;
     private ListMovieAdapter listMovieAdapter;
@@ -88,7 +92,12 @@ public class MainActivity extends AppCompatActivity {
         //设置颜色为半透明
         StatusBar statusBar = new StatusBar(MainActivity.this);
         statusBar.setColor(R.color.translucent);
-        statusBar.setTextColor(false);
+        if(this.getApplicationContext().getResources().getConfiguration().uiMode == 0x21) { //深色
+            statusBar.setTextColor(true);
+        } else if (this.getApplicationContext().getResources().getConfiguration().uiMode == 0x11) { //浅色
+            statusBar.setTextColor(false);
+        }
+
         //material 3取色，安卓12起
         DynamicColors.applyToActivityIfAvailable(this);
 
@@ -129,29 +138,44 @@ public class MainActivity extends AppCompatActivity {
         Permission();
         init();
 
-        switch_horizontal_layout.setChecked(list_horizontal_layout);
-        switch_horizontal_layout.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // 处理开关状态变化事件
-                if (isChecked) {
-                    list_horizontal_layout=true;
-                    SharedPreferences sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putBoolean("list_horizontal_layout", true);
-                    editor.apply();
-                    init_data(); //提前重绘，减少切换感知
-                } else {
-                    list_horizontal_layout=false;
-                    SharedPreferences sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putBoolean("list_horizontal_layout", false);
-                    editor.apply();
-                    init_data(); //提前重绘，减少切换感知
-                }
-            }
-        });
+        //搜索框
+        mainsearchbar.inflateMenu(R.menu.searchbar_menu);
+        mainsearchbar.setOnMenuItemClickListener(
+                menuItem -> {
+                    if (menuItem.getItemId() == R.id.searchbar_menu_settings) {
+                        Intent intent = new Intent(this, SettingsActivity.class);
+                        startActivity(intent);
+                    } else if (menuItem.getItemId()==R.id.searchbar_menu_layout) {
+                        // 加载自定义布局
+                        View dialogView = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_main_layout, null);
+                        TabLayout tabLayout = dialogView.findViewById(R.id.dialog_main_layout_TabLayout);
+                        if(list_horizontal_layout) Objects.requireNonNull(tabLayout.getTabAt(1)).select();
+                        else Objects.requireNonNull(tabLayout.getTabAt(0)).select();
 
+                        new MaterialAlertDialogBuilder(MainActivity.this)
+                                .setTitle("布局")
+                                .setView(dialogView)
+                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        list_horizontal_layout= tabLayout.getSelectedTabPosition() == 1;
+                                        init_data();
+                                        SharedPreferences sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                        editor.putBoolean("list_horizontal_layout", list_horizontal_layout);
+                                        editor.apply();
+                                    }
+                                })
+                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // 处理取消按钮的点击事件
+                                    }
+                                })
+                                .show();
+                    }
+                    return true;
+                });
         mainsearchview.setupWithSearchBar(mainsearchbar);
         mainsearchview.addTransitionListener(new SearchView.TransitionListener() {
             @Override
@@ -165,7 +189,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
         mainsearchview.getEditText().setOnEditorActionListener((v, actionId, event) -> {
             // 显示加载
             mainsearchlinearprogress.setVisibility(View.VISIBLE);
@@ -238,15 +261,23 @@ public class MainActivity extends AppCompatActivity {
                 int itemId = item.getItemId();
                 if (itemId == R.id.menu_loacl) {
                     item.setIcon(R.drawable.movie_fill1_wght400_grad0_opsz48);
-                    menu.findItem(R.id.menu_settings).setIcon(R.drawable.settings_fill0_wght400_grad0_opsz48);
-                    settings.setVisibility(View.GONE);
+                    history.setVisibility(View.GONE);
                     searchCoordinatorLayout.setVisibility(View.VISIBLE);
                     return true;
                 } else if (itemId == R.id.menu_settings) {
-                    item.setIcon(R.drawable.settings_fill1_wght400_grad0_opsz48);
                     menu.findItem(R.id.menu_loacl).setIcon(R.drawable.movie_fill0_wght400_grad0_opsz48);
                     searchCoordinatorLayout.setVisibility(View.GONE);
-                    settings.setVisibility(View.VISIBLE);
+                    history.setVisibility(View.VISIBLE);
+
+                    ListMovieHistoryAdapter listMovieHistoryAdapter=new ListMovieHistoryAdapter(MainActivity.this, provider);
+                    //创建线性布局
+                    LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
+                    //水平方向
+                    manager.setOrientation(LinearLayoutManager.VERTICAL);
+                    //给RecyclerView设置布局管理器
+                    historyrecyclerView.setLayoutManager(manager);
+                    historyrecyclerView.setAdapter(listMovieHistoryAdapter);
+
                     return true;
                 }
                 return false;
@@ -287,8 +318,16 @@ public class MainActivity extends AppCompatActivity {
 
                 Resources resources = getResources();
 
-                int itemWidthInDp = 130; // 项目宽度（以dp为单位）
+                int itemWidthInDp = 100; // 项目宽度（以dp为单位）
                 float itemWidthInPixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, itemWidthInDp, resources.getDisplayMetrics());
+
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    //横屏
+                    int dpValue = 72; // 要减去的 dp 值
+                    float density = displayMetrics.density;
+                    int pixelValue = (int)(dpValue * density); // 将 dp 转换为像素
+                    screenWidth -= pixelValue; // 减去 72 dp
+                }
 
                 int spanCount = (int) (screenWidth / itemWidthInPixels);
 
@@ -319,8 +358,16 @@ public class MainActivity extends AppCompatActivity {
                 int screenWidth = displayMetrics.widthPixels;
 
                 Resources resources = getResources();
-                int itemWidthInDp = 230; // 项目宽度（以dp为单位）
+                int itemWidthInDp = 200; // 项目宽度（以dp为单位）
                 float itemWidthInPixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, itemWidthInDp, resources.getDisplayMetrics());
+
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    //横屏
+                    int dpValue = 72; // 要减去的 dp 值
+                    float density = displayMetrics.density;
+                    int pixelValue = (int)(dpValue * density); // 将 dp 转换为像素
+                    screenWidth -= pixelValue; // 减去 72 dp
+                }
 
                 int spanCount = (int) (screenWidth / itemWidthInPixels);
 
@@ -351,8 +398,8 @@ public class MainActivity extends AppCompatActivity {
         list_horizontal_layout = sharedPreferences.getBoolean("list_horizontal_layout", true);
 
         recyclerView=findViewById(R.id.recyclerview);
-        settings=findViewById(R.id.settings);
-        switch_horizontal_layout=findViewById(R.id.switch_horizontal_layout);
+        historyrecyclerView=findViewById(R.id.main_history_list);
+        history=findViewById(R.id.main_history);
         mainsearchview=findViewById(R.id.search_view);
         mainsearchbar=findViewById(R.id.search_bar);
         searchrecyclerView=findViewById(R.id.search_recyclerview);

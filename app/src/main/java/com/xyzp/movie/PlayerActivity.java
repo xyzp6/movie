@@ -67,7 +67,7 @@ public class PlayerActivity extends Activity {
     //服务于页面滑动
     private int x=0,y=0, operationType = 0; //xy初始坐标,operationType  0: 未知, 1: 改变亮度, 2: 改变音量, 3: 改变进度, 4: 下拉通知栏
     private long current = 0; // 初始进度
-    private String url;
+    private String url,moviepath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,10 +87,11 @@ public class PlayerActivity extends Activity {
         //获取传递的值
         Intent intent = getIntent();
         url=intent.getStringExtra("movie_url");
+        moviepath=intent.getStringExtra("movie_path");
         int position = intent.getIntExtra("movie_position",0);
         movieid = intent.getIntExtra("movie_id",0);
         videoList= (List<Video>) intent.getSerializableExtra("movie_video_list");
-        prepare(position,url);
+        prepare(position,url,moviepath);
 
         if(savedInstanceState != null) {
             boolean playSituation = sharedPreferences.getBoolean("play_situation", false);
@@ -124,7 +125,7 @@ public class PlayerActivity extends Activity {
                 // 获取上一个媒体项目的播放位置
                 long previousPosition = oldPosition.positionMs;
                 //保存当前进度
-                if (url==null) {
+                if (url==null&&moviepath==null) {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putLong(String.valueOf(videoList.get(oldPosition.mediaItemIndex).getId()),previousPosition);
                     editor.apply();
@@ -351,7 +352,7 @@ public class PlayerActivity extends Activity {
         slideDialog.setSlideSeekBar(volume*50,maxvolume*50);
     }
 
-    public void prepare(int position,String url) {
+    public void prepare(int position,String url,String moviepath) {
         trackSelector = new DefaultTrackSelector(this);
 
         player = new ExoPlayer.Builder(this)
@@ -364,6 +365,9 @@ public class PlayerActivity extends Activity {
         if(url!=null) {
             MediaItem mediaItem=MediaItem.fromUri(url);
             player.addMediaItem(mediaItem);
+        } else if (moviepath!=null) {
+            MediaItem mediaItem=MediaItem.fromUri(moviepath);
+            player.addMediaItem(mediaItem);
         } else {
             List<MediaItem> mediaItems=new ArrayList<>();
             for(Video video:videoList) {
@@ -372,20 +376,20 @@ public class PlayerActivity extends Activity {
             }
             player.addMediaItems(mediaItems);
             player.setRepeatMode(Player.REPEAT_MODE_ALL);
+        }
 
-            //跳转进度
-            long currentposition=sharedPreferences.getLong(String.valueOf(movieid),0);
-            if(currentposition!=0) {
-                player.seekTo(position,currentposition);
-                Snackbar.make(findViewById(R.id.video), "从头开始", Snackbar.LENGTH_LONG).setAction("确认", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        player.seekTo(0);
-                    }
-                }).setActionTextColor(getColor(R.color.purple_200)).show();
-            } else {
-                player.seekTo(position,0);
-            }
+        //跳转进度
+        long currentposition=sharedPreferences.getLong(String.valueOf(movieid),0);
+        if(currentposition!=0) {
+            player.seekTo(position,currentposition);
+            Snackbar.make(findViewById(R.id.video), "从头开始", Snackbar.LENGTH_LONG).setAction("确认", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    player.seekTo(0);
+                }
+            }).setActionTextColor(getColor(R.color.purple_200)).show();
+        } else {
+            player.seekTo(position,0);
         }
 
         //  准备播放
@@ -522,7 +526,11 @@ public class PlayerActivity extends Activity {
         super.onPause();
         if(url==null) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putLong(String.valueOf(videoList.get(player.getCurrentMediaItemIndex()).getId()),player.getCurrentPosition()); //保存当前进度
+            if(moviepath!=null) {
+                editor.putLong(String.valueOf(movieid),player.getCurrentPosition()); //保存当前进度
+            } else {
+                editor.putLong(String.valueOf(videoList.get(player.getCurrentMediaItemIndex()).getId()),player.getCurrentPosition()); //保存当前进度
+            }
             if (player.isPlaying()) {
                 editor.putBoolean("play_situation", true);
                 player.pause();

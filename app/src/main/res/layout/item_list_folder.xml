@@ -10,7 +10,7 @@
         android:id="@+id/item_list_folder_picture"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:src="@drawable/folder_fill0_wght400_grad0_opsz48">
+        android:src="@drawable/folder_fill1_wght400_grad0_opsz48">
     </ImageView>
 
     <!--    左边数据布局-->

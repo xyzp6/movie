@@ -1,14 +1,19 @@
 <resources>
     <string name="app_name">本地视频</string>
     <string name="loacl">本地</string>
-    <string name="settings">设置</string>
+    <string name="history">历史记录</string>
+    <string name="layout">布局</string>
+    <string name="grid">网格</string>
+    <string name="list">列表</string>
     <string name="movie_name">电影名</string>
     <string name="folder_name">文件夹名</string>
     <string name="online_link">在线视频</string>
     <string name="online_dialog_url">URL</string>
+    <string name="play_current_time">播放时长</string>
+
+    <string name="about">关于</string>
 
     <string name="speed">倍速</string>
-    <string name="list">列表</string>
     <string name="audio_track">音频轨道</string>
     <string name="subtitle_track">字幕轨道</string>
 
@@ -20,4 +25,17 @@
 
     <string name="searchbar_hint">搜索</string>
     <string name="subtitle">字幕</string>
+
+    <string name="settings">设置</string>
+    <string name="thanks">感谢您的使用，如有问题，欢迎联系</string>
+    <string name="open_source_address">开源地址：https://github.com/xyzp6/movie</string>
+    <string name="version_text">当前版本：%1$s</string>
+
+    <string name="title_activity_settings">SettingsActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
 </resources>

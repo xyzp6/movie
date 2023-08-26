@@ -56,7 +56,7 @@
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         <LinearLayout
-            android:id="@+id/settings"
+            android:id="@+id/main_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
@@ -64,14 +64,11 @@
             android:visibility="gone"
             android:orientation="vertical"
             app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switch_horizontal_layout"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/main_history_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:checked="true"
-                android:text="@string/horizontal_layout"/>
+                android:layout_height="wrap_content" />
+
         </LinearLayout>
 
         <!-- fab -->

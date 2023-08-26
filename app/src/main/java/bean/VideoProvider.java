@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -76,6 +77,38 @@ public class VideoProvider implements AbstructProvider {
             }
         }
         return list;
+    }
+
+    /**
+     * 根据id获得名字
+     */
+    public String getNameFromId(int id) {
+        String path=getPathFromId(id);
+        File videoFile = new File(path);
+        String title = videoFile.getName();
+        //去除后缀
+        int dotIndex = title.lastIndexOf('.');
+        if (dotIndex != -1) {
+            title = title.substring(0, dotIndex);
+        }
+        return title;
+    }
+
+    /**
+     * 根据id获得地址
+     */
+    public String getPathFromId(int id) {
+        String path="";
+        String[] projection = {MediaStore.Video.Media._ID, MediaStore.Video.Media.DATA};
+        String selection = MediaStore.Video.Media._ID + "=?";
+        String[] selectionArgs = {String.valueOf(id)};
+        Cursor cursor = context.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+            path = cursor.getString(nameColumn);
+            cursor.close();
+        }
+        return path;
     }
 
     /**

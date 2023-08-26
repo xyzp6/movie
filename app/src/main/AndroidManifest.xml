@@ -19,7 +19,9 @@
         <activity
             android:name=".PlayerActivity"
             android:exported="true" />
-
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
