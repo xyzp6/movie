@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.media3.common.PlaybackParameters;
@@ -22,9 +23,16 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -39,9 +47,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -68,6 +78,7 @@ import bean.Video;
 import bean.VideoProvider;
 
 public class MainActivity extends AppCompatActivity {
+    private ImageView mainbg;
     private SearchView mainsearchview;
     private SearchBar mainsearchbar;
     private LinearProgressIndicator mainsearchlinearprogress;
@@ -91,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
         //设置颜色为半透明
         StatusBar statusBar = new StatusBar(MainActivity.this);
-        statusBar.setColor(R.color.translucent);
+        statusBar.setColor(R.color.transparent);
         if(this.getApplicationContext().getResources().getConfiguration().uiMode == 0x21) { //深色
             statusBar.setTextColor(true);
         } else if (this.getApplicationContext().getResources().getConfiguration().uiMode == 0x11) { //浅色
@@ -137,6 +148,16 @@ public class MainActivity extends AppCompatActivity {
                 });
         Permission();
         init();
+
+        //设置主页背景
+        SharedPreferences sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
+        String bg=sharedPreferences.getString("mainbg","");
+        if(!bg.equals("")) {
+            byte[] byteArray = Base64.decode(bg, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+            Drawable drawable = new BitmapDrawable(getResources(), bitmap);
+            mainbg.setImageDrawable(drawable);
+        }
 
         //搜索框
         mainsearchbar.inflateMenu(R.menu.searchbar_menu);
@@ -397,6 +418,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("Settings",MODE_PRIVATE);
         list_horizontal_layout = sharedPreferences.getBoolean("list_horizontal_layout", true);
 
+        mainbg=findViewById(R.id.main_background);
         recyclerView=findViewById(R.id.recyclerview);
         historyrecyclerView=findViewById(R.id.main_history_list);
         history=findViewById(R.id.main_history);

@@ -21,44 +21,224 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/settings_navigationView"
-        android:layout_width="wrap_content"
+    <ScrollView
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:menu="@menu/settings_menu"
-        app:layout_constraintTop_toBottomOf="@id/settings_top_bar"
+        app:layout_constraintTop_toBottomOf="@+id/settings_top_bar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <RelativeLayout
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/settings_top_bar"
-        app:layout_constraintStart_toEndOf="@id/settings_navigationView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-        <TextView
-            android:id="@+id/settings_about_thank"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:textSize="18sp"
-            android:text="@string/thanks"/>
-        <TextView
-            android:id="@+id/settings_about_openaddress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/settings_about_thank"
-            android:text="@string/open_source_address"
-            android:textSize="18sp" />
-        <TextView
-            android:id="@+id/settings_about_version"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/settings_about_openaddress"
-            android:textSize="18sp" />
-    </RelativeLayout>
+            <!-- 整体设置 -->
+            <RelativeLayout
+                android:id="@+id/settings_total"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/rounded_corners" >
+
+                <RelativeLayout
+                    android:id="@+id/settings_total_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp" >
+                    <ImageView
+                        android:id="@+id/settings_total_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:src="@drawable/light_mode_fill1_wght400_grad0_opsz32"
+                        android:layout_centerVertical="true" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/total_settings"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:layout_marginStart="10dp"
+                        android:layout_toEndOf="@+id/settings_total_iv"
+                        android:layout_centerVertical="true" />
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/settings_total_theme_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/settings_total_top"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/total_theme"/>
+
+                <RadioGroup
+                    android:id="@+id/settings_total_theme"
+                    android:checkedButton="@+id/settings_total_theme_auto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_below="@+id/settings_total_theme_tv" >
+                    <RadioButton
+                        android:id="@+id/settings_total_theme_auto"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/total_auto"/>
+                    <RadioButton
+                        android:id="@+id/settings_total_theme_bright"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/total_bright"/>
+                    <RadioButton
+                        android:id="@+id/settings_total_theme_dark"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/total_dark"/>
+                </RadioGroup>
+            </RelativeLayout>
+
+            <!-- 首页 -->
+            <RelativeLayout
+                android:id="@+id/settings_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_below="@+id/settings_total"
+                android:background="@drawable/rounded_corners" >
+
+                <RelativeLayout
+                    android:id="@+id/settings_main_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp" >
+                    <ImageView
+                        android:id="@+id/settings_main_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:src="@drawable/home_fill1_wght400_grad0_opsz32"
+                        android:layout_centerVertical="true" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/main_settings"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:layout_marginStart="10dp"
+                        android:layout_toEndOf="@+id/settings_main_iv"
+                        android:layout_centerVertical="true" />
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/settings_main_forpictures"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/settings_main_top"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/picture_main"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@+id/settings_main_forpictures" >
+                    <Button
+                        style="@style/Widget.Material3.Button"
+                        android:id="@+id/settings_main_selpictures"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/photo_library_fill0_wght400_grad0_opsz24"
+                        android:text="@string/picture_main_button" />
+                    <Button
+                        style="@style/Widget.Material3.Button"
+                        android:id="@+id/settings_main_defaultpictures"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_toRightOf="@+id/settings_main_selpictures"
+                        app:icon="@drawable/photo_library_fill0_wght400_grad0_opsz24"
+                        android:text="@string/picture_main_button_default" />
+
+                </RelativeLayout>
+            </RelativeLayout>
+
+            <!-- 关于 -->
+            <RelativeLayout
+                android:id="@+id/settings_about"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_below="@+id/settings_main"
+                android:background="@drawable/rounded_corners" >
+
+                <RelativeLayout
+                    android:id="@+id/settings_about_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp" >
+                    <ImageView
+                        android:id="@+id/settings_about_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:src="@drawable/favorite_fill1_wght400_grad0_opsz32"
+                        android:layout_centerVertical="true" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:layout_marginStart="10dp"
+                        android:layout_toEndOf="@+id/settings_about_iv"
+                        android:layout_centerVertical="true" />
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/settings_about_thank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/settings_about_top"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/thanks"/>
+                <TextView
+                    android:id="@+id/settings_about_version"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/settings_about_thank"
+                    android:layout_marginStart="10dp" />
+                <Button
+                    style="@style/Widget.Material3.Button"
+                    android:id="@+id/settings_about_openaddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/settings_about_version"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="20dp"
+                    app:icon="@drawable/link_fill0_wght400_grad0_opsz48"
+                    android:text="@string/open_source_address" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_below="@+id/settings_about"/>
+        </RelativeLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

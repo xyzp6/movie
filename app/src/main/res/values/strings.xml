@@ -11,8 +11,6 @@
     <string name="online_dialog_url">URL</string>
     <string name="play_current_time">播放时长</string>
 
-    <string name="about">关于</string>
-
     <string name="speed">倍速</string>
     <string name="audio_track">音频轨道</string>
     <string name="subtitle_track">字幕轨道</string>
@@ -27,8 +25,18 @@
     <string name="subtitle">字幕</string>
 
     <string name="settings">设置</string>
+    <string name="total_settings">整体设置</string>
+    <string name="total_theme">选择一个喜欢的模式吧！</string>
+    <string name="total_auto">跟随系统</string>
+    <string name="total_bright">亮色</string>
+    <string name="total_dark">暗色</string>
+    <string name="main_settings">主页设置</string>
+    <string name="picture_main">为您的主页选一张好看的图片吧！</string>
+    <string name="picture_main_button">点我选择</string>
+    <string name="picture_main_button_default">恢复默认</string>
+    <string name="about">关于</string>
     <string name="thanks">感谢您的使用，如有问题，欢迎联系</string>
-    <string name="open_source_address">开源地址：https://github.com/xyzp6/movie</string>
+    <string name="open_source_address">开源地址</string>
     <string name="version_text">当前版本：%1$s</string>
 
     <string name="title_activity_settings">SettingsActivity</string>
