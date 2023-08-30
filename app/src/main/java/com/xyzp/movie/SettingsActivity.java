@@ -2,6 +2,7 @@ package com.xyzp.movie;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,14 +15,20 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.method.BaseKeyListener;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Base64;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -52,9 +59,12 @@ import bean.StatusBar;
 public class SettingsActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private MaterialToolbar materialToolbar;
+    private RadioGroup themeradioGroup;
     private RadioButton autoradioButton,brightradioButton,darkradioButton;
     private TextView versiontextView;
+    private ImageView tipimageView;
     private Button opaddbutton,mainpicchoicebutton,mainpicdefaultbutton;
+    private MaterialSwitch tipswitch;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +82,20 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
         init();
 
+        int screenBrightness = 0;
+        try {
+            screenBrightness = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+        } catch (Settings.SettingNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        float brightnessValue = screenBrightness / 255.0f;
+        System.out.println(brightnessValue);
+
+
+//        ContentResolver contentResolver = getContentResolver();
+//        int defVal = 125;
+//        System.out.println(Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, defVal));
+
         //顶部栏返回按钮事件
         materialToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,23 +104,75 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        //设置暗色模式
+        //设置提示，默认为true
+        tipswitch.setChecked(sharedPreferences.getBoolean("tip",true));
+        tipswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("tip", true);
+                    editor.apply();
+                } else {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("tip", false);
+                    editor.apply();
+                }
+            }
+        });
+        tipimageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View popupView = LayoutInflater.from(v.getContext()).inflate(R.layout.popup_layout, null);
+                PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                popupWindow.setOutsideTouchable(true);
+                popupWindow.setFocusable(true);
+
+                int[] location = new int[2];
+                v.getLocationOnScreen(location);
+                popupWindow.showAtLocation(v, Gravity.NO_GRAVITY, location[0]+v.getWidth(), location[1]);
+            }
+        });
+
+        //设置暗色模式，默认为auto
+        String theme=sharedPreferences.getString("theme","auto");
+        switch (theme) {
+            case "auto":
+                themeradioGroup.check(R.id.settings_total_theme_auto);
+                break;
+            case "bright":
+                themeradioGroup.check(R.id.settings_total_theme_bright);
+                break;
+            case "dark":
+                themeradioGroup.check(R.id.settings_total_theme_dark);
+                break;
+        }
         autoradioButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("theme", "auto");
+                editor.apply();
             }
         });
         brightradioButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("theme", "bright");
+                editor.apply();
             }
         });
         darkradioButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("theme", "dark");
+                editor.apply();
             }
         });
 
@@ -183,9 +259,12 @@ public class SettingsActivity extends AppCompatActivity {
         opaddbutton=findViewById(R.id.settings_about_openaddress);
         mainpicchoicebutton=findViewById(R.id.settings_main_selpictures);
         mainpicdefaultbutton=findViewById(R.id.settings_main_defaultpictures);
+        themeradioGroup=findViewById(R.id.settings_total_theme);
         autoradioButton=findViewById(R.id.settings_total_theme_auto);
         brightradioButton=findViewById(R.id.settings_total_theme_bright);
         darkradioButton=findViewById(R.id.settings_total_theme_dark);
+        tipswitch=findViewById(R.id.settings_total_tip_switch);
+        tipimageView=findViewById(R.id.settings_total_tip_info);
 
         sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
     }

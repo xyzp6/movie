@@ -65,13 +65,43 @@
                         android:layout_centerVertical="true" />
                 </RelativeLayout>
 
+                <RelativeLayout
+                    android:id="@+id/settings_total_tip"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_below="@+id/settings_total_top" >
+                    <TextView
+                        android:id="@+id/settings_total_tip_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:text="@string/total_tip" />
+                    <ImageView
+                        android:id="@+id/settings_total_tip_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/settings_total_tip_tv"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/info_fill0_wght400_grad0_opsz24" />
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/settings_total_tip_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:checked="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="20dp" />
+
+                </RelativeLayout>
+
                 <TextView
                     android:id="@+id/settings_total_theme_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/settings_total_top"
+                    android:layout_below="@+id/settings_total_tip"
                     android:layout_marginStart="10dp"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="10dp"
                     android:text="@string/total_theme"/>
 
                 <RadioGroup

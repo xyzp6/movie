@@ -42,6 +42,7 @@ public class MovieMenu implements PopupMenu.OnMenuItemClickListener {
     }
 
     @Override
+    @androidx.media3.common.util.UnstableApi
     public boolean onMenuItemClick(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.speed) {
@@ -134,6 +135,7 @@ public class MovieMenu implements PopupMenu.OnMenuItemClickListener {
             for (TrackGroup trackGroup : audioSet) {
                 items[i]=trackGroup;
                 Stringitems[i]=trackGroup.getFormat(0).label;
+                if (Stringitems[i]==null) Stringitems[i]="单一轨道";
                 i++;
             }
 
@@ -190,7 +192,13 @@ public class MovieMenu implements PopupMenu.OnMenuItemClickListener {
             numberPicker.setValue(1);
 
             // 设置 NumberPicker 的显示内容
-            numberPicker.setDisplayedValues(Stringitems);
+            if (Stringitems.length==0) {
+                String[] nullStringitems=new String[1];
+                nullStringitems[0]="无字幕";
+                numberPicker.setDisplayedValues(nullStringitems);
+            } else {
+                numberPicker.setDisplayedValues(Stringitems);
+            }
 
             new MaterialAlertDialogBuilder(playerActivity)
                     .setTitle("字幕轨道")

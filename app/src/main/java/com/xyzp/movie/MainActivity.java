@@ -1,10 +1,13 @@
 package com.xyzp.movie;
 
 
+import static bean.Tip.showGreeting;
+
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -17,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Application;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -74,6 +78,7 @@ import bean.FolderAdapter;
 import bean.ListMovieAdapter;
 import bean.ListMovieHistoryAdapter;
 import bean.StatusBar;
+import bean.Tip;
 import bean.Video;
 import bean.VideoProvider;
 
@@ -157,6 +162,25 @@ public class MainActivity extends AppCompatActivity {
             Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
             Drawable drawable = new BitmapDrawable(getResources(), bitmap);
             mainbg.setImageDrawable(drawable);
+        }
+        //设置提示
+        if (sharedPreferences.getBoolean("tip",true)) {
+            GlobalApplication application = (GlobalApplication) getApplication();
+            if (!application.hasShownGreeting) {
+                showGreeting(this);
+                application.hasShownGreeting = true;
+            }
+        }
+        //设置暗色模式
+        String theme=sharedPreferences.getString("theme","auto");
+        if (theme.equals("auto")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        }
+        else if (theme.equals("bright")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+        else if (theme.equals("dark")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         }
 
         //搜索框
@@ -255,9 +279,14 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
-                                intent.putExtra("movie_url",textInputEditText.getText().toString());
-                                startActivity(intent);
+                                if(Objects.requireNonNull(textInputEditText.getText()).toString().equals("")) {
+                                    Toast.makeText(MainActivity.this, "请输入URL", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+                                    intent.putExtra("movie_url",textInputEditText.getText().toString());
+                                    startActivity(intent);
+                                }
+
                             }
                         })
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -482,4 +511,5 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed();
         }
     }
+
 }

@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.provider.Settings;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,6 +21,7 @@ import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -45,10 +47,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import bean.LightSensorUtils;
 import bean.Video;
 
 
 public class PlayerActivity extends Activity {
+    private LightSensorUtils lightSensorUtils;
     private final Set<TrackGroup> audioSet=new HashSet<>();
     private final Set<TrackGroup> subtitleSet=new HashSet<>();
     private final Handler handler = new Handler();
@@ -62,7 +66,7 @@ public class PlayerActivity extends Activity {
     private SlideDialog slideDialog;
     private List<Video> videoList;
     private DefaultTrackSelector trackSelector;
-    private boolean controllersVisible = true; //组件可视
+    private boolean controllersVisible = true, tip = true, toodark = false ; //组件可视，提示，昏暗场景警告
     private int movieid=0,checkedItem = 2; // 倍速,默认选中 1x
     //服务于页面滑动
     private int x=0,y=0, operationType = 0; //xy初始坐标,operationType  0: 未知, 1: 改变亮度, 2: 改变音量, 3: 改变进度, 4: 下拉通知栏
@@ -70,6 +74,7 @@ public class PlayerActivity extends Activity {
     private String url,moviepath;
 
     @Override
+    @androidx.media3.common.util.UnstableApi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //material 3取色，安卓12起
@@ -83,6 +88,24 @@ public class PlayerActivity extends Activity {
             setContentView(R.layout.activity_player_vertical);
         }
         init();
+
+        if (tip) {
+            //监测光线传感器数据
+            lightSensorUtils=new LightSensorUtils(this);
+            lightSensorUtils.setLightListener(new LightSensorUtils.LightListener() {
+                @Override
+                public void getLight(float value) {
+                    if (value<15 && !toodark) {
+                        toodark=true;
+                        Toast.makeText(PlayerActivity.this, "当前环境过于昏暗！"+value, Toast.LENGTH_SHORT).show();
+                    }
+                    else if (value>=15 && toodark) {
+                        toodark=false;
+                        Toast.makeText(PlayerActivity.this, "已恢复明亮环境！"+value, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
 
         //获取传递的值
         Intent intent = getIntent();
@@ -195,7 +218,7 @@ public class PlayerActivity extends Activity {
                         x = (int) event.getRawX();
                         y = (int) event.getRawY();
                         current = player.getCurrentPosition();
-                        if(y<60) operationType=4;
+                        if(y<200) operationType=4;
                         break;
                     case MotionEvent.ACTION_MOVE:
                         if(operationType==4) return true;
@@ -315,10 +338,17 @@ public class PlayerActivity extends Activity {
     /**
      * 改亮度
      */
-    private void changeBrightness(int birghtessValue) {
+    private void changeBrightness(int brightessValue) {
         Window window = getWindow();
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.screenBrightness += birghtessValue*0.001f;
+        if (lp.screenBrightness==0) { //获取真实值
+            try {
+                lp.screenBrightness = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS)/ 255.0f;
+            } catch (Settings.SettingNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        lp.screenBrightness += brightessValue*0.001f;
         // 限制 lp.screenBrightness 的取值范围在 0 到 1 之间
         if (lp.screenBrightness < 0) {
             lp.screenBrightness = 0;
@@ -352,6 +382,7 @@ public class PlayerActivity extends Activity {
         slideDialog.setSlideSeekBar(volume*50,maxvolume*50);
     }
 
+    @androidx.media3.common.util.UnstableApi
     public void prepare(int position,String url,String moviepath) {
         trackSelector = new DefaultTrackSelector(this);
 
@@ -501,6 +532,10 @@ public class PlayerActivity extends Activity {
             layoutParams.preferredRefreshRate = 120.0f;
             getWindow().setAttributes(layoutParams);
         }
+
+        SharedPreferences spSet = getSharedPreferences("Settings", MODE_PRIVATE);
+        tip=spSet.getBoolean("tip",true);
+
         // 隐藏状态栏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         videoView=findViewById(R.id.video);
@@ -518,12 +553,19 @@ public class PlayerActivity extends Activity {
         sharedPreferences = getSharedPreferences("Playing", MODE_PRIVATE);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (tip) lightSensorUtils.registerLight();
+    }
+
     /**
      * 使视频立刻暂停
      */
     @Override
     public void onPause() {
         super.onPause();
+        if(tip) lightSensorUtils.unregisterLight();
         if(url==null) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             if(moviepath!=null) {
