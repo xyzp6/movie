@@ -3,11 +3,11 @@
     <item
         android:id="@+id/menu_loacl"
         android:enabled="true"
-        android:icon="@drawable/movie_fill1_wght400_grad0_opsz48"
+        android:icon="@drawable/movie_fill1_wght400_grad0_opsz32"
         android:title="@string/loacl"/>
     <item
-        android:id="@+id/menu_settings"
+        android:id="@+id/menu_history"
         android:enabled="true"
-        android:icon="@drawable/history_fill0_wght400_grad0_opsz48"
+        android:icon="@drawable/history_fill0_wght400_grad0_opsz32"
         android:title="@string/history"/>
 </menu>

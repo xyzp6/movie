@@ -30,10 +30,10 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
         this.longListener=longListener;
     }
     public interface OnItemClickListener {
-        void onItemClick(String data);
+        void onItemClick(String data,int position);
     }
     public interface OnItemLongClickListener {
-        void OnItemLongClick(String data);
+        void OnItemLongClick(String data,int position);
     }
     //由于RecycleAdapterDome继承自RecyclerView.Adapter,则必须重写onCreateViewHolder()，onBindViewHolder()，getItemCount()
     //onCreateViewHolder()方法用于创建ViewHolder实例，我们在这个方法将item_list_movie.xml布局加载进来
@@ -47,20 +47,20 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
             myViewHolder.relativeLayout.setOnClickListener(new View.OnClickListener() { //点击事件
                 @Override
                 public void onClick(View v) {
-                    int position = myViewHolder.getAdapterPosition();
                     //传递
+                    int position = myViewHolder.getBindingAdapterPosition();
                     if (listener != null) {
-                        listener.onItemClick(list.get(position));
+                        listener.onItemClick(list.get(position),position);
                     }
                 }
             });
             myViewHolder.relativeLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    int position = myViewHolder.getAdapterPosition();
+                    int position = myViewHolder.getBindingAdapterPosition();
                     // 传递
                     if (longListener != null) {
-                        longListener.OnItemLongClick(list.get(position));
+                        longListener.OnItemLongClick(list.get(position),position);
                     }
                     return true;
                 }
@@ -72,20 +72,20 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
             myViewHolder.linearLayout.setOnClickListener(new View.OnClickListener() { //点击事件
                 @Override
                 public void onClick(View v) {
-                    int position = myViewHolder.getAdapterPosition();
+                    int position = myViewHolder.getBindingAdapterPosition();
                     //传递
                     if (listener != null) {
-                        listener.onItemClick(list.get(position));
+                        listener.onItemClick(list.get(position),position);
                     }
                 }
             });
             myViewHolder.linearLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    int position = myViewHolder.getAdapterPosition();
+                    int position = myViewHolder.getBindingAdapterPosition();
                     // 传递
                     if (longListener != null) {
-                        longListener.OnItemLongClick(list.get(position));
+                        longListener.OnItemLongClick(list.get(position),position);
                     }
                     return true;
                 }

@@ -1,6 +1,7 @@
 package bean;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 
 import java.io.Serializable;
 
@@ -13,6 +14,7 @@ public class Video implements Serializable{
     private String displayName;
     private String mimeType;
     private String path;
+    private Uri uri;
     private long size;
     private long duration;
     private String folderName;
@@ -36,7 +38,7 @@ public class Video implements Serializable{
      * @param folderName
      */
     public Video(int id, String title, String album, String artist,
-                 String displayName, String mimeType, String path, long size,
+                 String displayName, String mimeType, String path,Uri uri, long size,
                  long duration,String folderName) {
         super();
         this.id = id;
@@ -46,6 +48,7 @@ public class Video implements Serializable{
         this.displayName = displayName;
         this.mimeType = mimeType;
         this.path = path;
+        this.uri=uri;
         this.size = size;
         this.duration = duration;
         this.folderName=folderName;
@@ -105,6 +108,14 @@ public class Video implements Serializable{
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public Uri getUri() {
+        return uri;
+    }
+
+    public void setUri(Uri uri) {
+        this.uri = uri;
     }
 
     public long getSize() {

@@ -43,12 +43,12 @@ public class SlideDialog extends Dialog {
         if(operationType==1) { //亮度
             slideCurrentTimeTextView.setVisibility(View.GONE);
             slideSeekBar.setVisibility(View.VISIBLE);
-            slideImageView.setImageResource(R.drawable.light_mode_fill1_wght400_grad0_opsz48);
+            slideImageView.setImageResource(R.drawable.light_mode_fill1_wght400_grad0_opsz32_white);
         }
         else if(operationType==2) { //音量
             slideCurrentTimeTextView.setVisibility(View.GONE);
             slideSeekBar.setVisibility(View.VISIBLE);
-            slideImageView.setImageResource(R.drawable.volume_up_fill1_wght400_grad0_opsz48);
+            slideImageView.setImageResource(R.drawable.volume_up_fill1_wght400_grad0_opsz32);
         }
         else if (operationType==3) { //进度
             slideCurrentTimeTextView.setVisibility(View.VISIBLE);
@@ -57,6 +57,6 @@ public class SlideDialog extends Dialog {
     }
 
     public void SetVolumeOff() {
-        slideImageView.setImageResource(R.drawable.volume_off_fill1_wght400_grad0_opsz48);
+        slideImageView.setImageResource(R.drawable.volume_off_fill1_wght400_grad0_opsz32);
     }
 }

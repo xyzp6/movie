@@ -2,6 +2,10 @@
     <string name="app_name">本地视频</string>
     <string name="loacl">本地</string>
     <string name="history">历史记录</string>
+    <string name="imports">导入</string>
+    <string name="exports">导出</string>
+    <string name="info">详情</string>
+    <string name="delete">删除</string>
     <string name="layout">布局</string>
     <string name="grid">网格</string>
     <string name="list">列表</string>

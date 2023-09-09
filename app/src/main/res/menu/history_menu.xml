@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/history_imports"
+        android:enabled="true"
+        android:icon="@drawable/download_fill0_wght400_grad0_opsz32"
+        android:title="@string/imports"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/history_exports"
+        android:enabled="true"
+        android:icon="@drawable/upload_fill0_wght400_grad0_opsz32"
+        android:title="@string/exports"
+        app:showAsAction="ifRoom" />
+</menu>

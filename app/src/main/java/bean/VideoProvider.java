@@ -7,9 +7,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.provider.MediaStore;
 
 public class VideoProvider implements AbstructProvider {
@@ -17,6 +19,10 @@ public class VideoProvider implements AbstructProvider {
     private List<Video> list; //储存变量，防止多次运行产生不必要的耗费
     public VideoProvider(Context context) {
         this.context = context;
+        list=getList();
+    }
+
+    public void Updatelist() {
         list=getList();
     }
 
@@ -51,8 +57,9 @@ public class VideoProvider implements AbstructProvider {
                     String path = cursor
                             .getString(cursor
                                     .getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
+                    Uri uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);
                     long duration = cursor
-                            .getInt(cursor
+                            .getLong(cursor
                                     .getColumnIndexOrThrow(MediaStore.Video.Media.DURATION));
                     long size = cursor
                             .getLong(cursor
@@ -69,7 +76,7 @@ public class VideoProvider implements AbstructProvider {
                         title = title.substring(0, dotIndex);
                     }
 
-                    Video video = new Video(id, title, album, artist, displayName, mimeType, path, size, duration,folderName);
+                    Video video = new Video(id, title, album, artist, displayName, mimeType, path,uri, size, duration,folderName);
 
                     list.add(video);
                 }

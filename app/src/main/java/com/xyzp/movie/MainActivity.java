@@ -1,18 +1,20 @@
 package com.xyzp.movie;
 
 
+import static bean.SharedPreferencesBackup.REQUEST_CODE_CREATE_FILE;
+import static bean.SharedPreferencesBackup.REQUEST_CODE_OPEN_FILE;
 import static bean.Tip.showGreeting;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
-import androidx.media3.common.PlaybackParameters;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,22 +22,27 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Application;
+import android.app.PendingIntent;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -43,32 +50,24 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigationrail.NavigationRailView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.search.SearchBar;
 import com.google.android.material.search.SearchView;
-import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,25 +76,27 @@ import java.util.Objects;
 import bean.FolderAdapter;
 import bean.ListMovieAdapter;
 import bean.ListMovieHistoryAdapter;
+import bean.SharedPreferencesBackup;
 import bean.StatusBar;
-import bean.Tip;
 import bean.Video;
 import bean.VideoProvider;
 
 public class MainActivity extends AppCompatActivity {
+    private final int DELETE_VIDEO_CODE=4;
     private ImageView mainbg;
     private SearchView mainsearchview;
     private SearchBar mainsearchbar;
     private LinearProgressIndicator mainsearchlinearprogress;
     private FloatingActionButton fabonline;
-    private List<Video> searchlist,movielist;
-    private SideSheetHelper sideSheetHelper;
-    private ActivityResultLauncher<String> requestPermissionLauncher;
+    private List<String> selectfolder=new ArrayList<>();
+    private List<Video> searchlist,movielist,selectvideo=new ArrayList<>();
+    private ActivityResultLauncher<String> requestReadPermissionLauncher,requestWritePermissionLauncher;
     private RecyclerView recyclerView,searchrecyclerView,historyrecyclerView;
     private CoordinatorLayout searchCoordinatorLayout;
-    private LinearLayout history;
+    private RelativeLayout history;
     private NavigationRailView navigationRailView;
     private BottomNavigationView bottomNavigationView;
+    private MaterialToolbar historymaterialToolbar;
     private String folder_path;
     private VideoProvider provider;
     private ListMovieAdapter listMovieAdapter;
@@ -130,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //权限申请回报
-        requestPermissionLauncher = registerForActivityResult(
+        requestReadPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
                     @Override
                     public void onActivityResult(Boolean granted) {
@@ -151,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-        Permission();
+        ReadPermission();
         init();
 
         //设置主页背景
@@ -218,6 +219,22 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 })
                                 .show();
+                    } else if (menuItem.getItemId()==R.id.searchbar_menu_info) {
+                        
+                    } else if (menuItem.getItemId()==R.id.searchbar_menu_delete) {
+                        List<Uri> uris=new ArrayList<>();
+                        for (Video video:selectvideo) {
+                            uris.add(video.getUri());
+                        }
+                        PendingIntent intent = null;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            intent = MediaStore.createDeleteRequest(getContentResolver(), uris);
+                        }
+                        try {
+                            startIntentSenderForResult(intent.getIntentSender(),DELETE_VIDEO_CODE,null,0,0,0);
+                        } catch (IntentSender.SendIntentException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     return true;
                 });
@@ -247,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            ListMovieAdapter listMovieAdapter = new ListMovieAdapter(MainActivity.this, searchlist, true,null);
+                            ListMovieAdapter listMovieAdapter = new ListMovieAdapter(MainActivity.this, searchlist, true,null,null);
                             //创建线性布局
                             LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
                             //水平方向
@@ -264,6 +281,17 @@ public class MainActivity extends AppCompatActivity {
 
             return false;
         });
+
+        //历史记录按钮监听
+        historymaterialToolbar.setOnMenuItemClickListener(
+            menuItem -> {
+                if (menuItem.getItemId() == R.id.history_imports) {
+                    SharedPreferencesBackup.restoreSharedPreferences(this);
+                } else if (menuItem.getItemId() == R.id.history_exports) {
+                    SharedPreferencesBackup.backupSharedPreferences(this, "Playing");
+                }
+                return true;
+            });
 
         //在线播放fab的监听事件
         fabonline.setOnClickListener(new View.OnClickListener() {
@@ -310,12 +338,12 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
                 if (itemId == R.id.menu_loacl) {
-                    item.setIcon(R.drawable.movie_fill1_wght400_grad0_opsz48);
+                    item.setIcon(R.drawable.movie_fill1_wght400_grad0_opsz32);
                     history.setVisibility(View.GONE);
                     searchCoordinatorLayout.setVisibility(View.VISIBLE);
                     return true;
-                } else if (itemId == R.id.menu_settings) {
-                    menu.findItem(R.id.menu_loacl).setIcon(R.drawable.movie_fill0_wght400_grad0_opsz48);
+                } else if (itemId == R.id.menu_history) {
+                    menu.findItem(R.id.menu_loacl).setIcon(R.drawable.movie_fill0_wght400_grad0_opsz32);
                     searchCoordinatorLayout.setVisibility(View.GONE);
                     history.setVisibility(View.VISIBLE);
 
@@ -343,15 +371,50 @@ public class MainActivity extends AppCompatActivity {
             List<String> list = provider.getFolderList();
             FolderAdapter folderAdapter = new FolderAdapter(this, list, list_horizontal_layout, new FolderAdapter.OnItemClickListener() {
                 @Override
-                public void onItemClick(String data) {
-                    folder_path=data;
-                    init_data();
-                    sideSheetHelper.hideSideSheet();
+                public void onItemClick(String data,int position) {
+                    if(selectfolder.size()==0) {
+                        folder_path=data;
+                        init_data();
+                    } else { //已有选中的内容
+                        View itemView = recyclerView.findViewHolderForAdapterPosition(position).itemView;
+                        ColorDrawable colorDrawable = (ColorDrawable) itemView.getBackground();
+                        int currentColor = colorDrawable.getColor();
+                        if (currentColor == Color.LTGRAY) { //取消选择
+                            itemView.setBackgroundColor(Color.TRANSPARENT);
+                            selectfolder.remove(data);
+                        } else { //选择
+                            itemView.setBackgroundColor(Color.LTGRAY);
+                            selectfolder.add(data);
+                        }
+                    }
+                    if (selectfolder.size()==0) {
+                        mainsearchbar.getMenu().clear();
+                        mainsearchbar.inflateMenu(R.menu.searchbar_menu);
+                    } else {
+                        mainsearchbar.getMenu().clear();
+                        mainsearchbar.inflateMenu(R.menu.searchbar_menu_select_folder);
+                    }
                 }
             }, new FolderAdapter.OnItemLongClickListener() {
                 @Override
-                public void OnItemLongClick(String data) {
-                    sideSheetHelper.showSideSheet(data,provider.getMapList(data));
+                public void OnItemLongClick(String data,int position) {
+                    View itemView = recyclerView.findViewHolderForAdapterPosition(position).itemView;
+                    ColorDrawable colorDrawable = (ColorDrawable) itemView.getBackground();
+                    int currentColor = colorDrawable.getColor();
+                    if (currentColor == Color.LTGRAY) { //取消选择
+                        itemView.setBackgroundColor(Color.TRANSPARENT);
+                        selectfolder.remove(data);
+                    } else { //选择
+                        itemView.setBackgroundColor(Color.LTGRAY);
+                        selectfolder.add(data);
+                    }
+                    if (selectfolder.size()==0) {
+                        mainsearchbar.getMenu().clear();
+                        mainsearchbar.inflateMenu(R.menu.searchbar_menu);
+                    } else {
+                        mainsearchbar.getMenu().clear();
+                        mainsearchbar.inflateMenu(R.menu.searchbar_menu_select_folder);
+                    }
                 }
             });
             //若为水平布局
@@ -389,10 +452,55 @@ public class MainActivity extends AppCompatActivity {
             recyclerView.setAdapter(folderAdapter);
         } else { //文件夹内
             movielist = provider.getMapList(folder_path);
-            listMovieAdapter = new ListMovieAdapter(this, movielist, list_horizontal_layout, new ListMovieAdapter.OnListItemLongClickListener() {
+            listMovieAdapter = new ListMovieAdapter(this, movielist, list_horizontal_layout, new ListMovieAdapter.OnItemClickListener() {
                 @Override
-                public void OnItemLongClick(Video video) {
-                    sideSheetHelper.showSideSheet(video);
+                public void OnItemClick(List<Video> list, int position) {
+                    if(selectvideo.size()==0) {
+                        Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+                        intent.putExtra("movie_position",position);
+                        intent.putExtra("movie_id",list.get(position).getId());
+                        intent.putExtra("movie_video_list",(Serializable) list);
+                        startActivity(intent);
+                    } else { //已有选中的内容
+                        View itemView = recyclerView.findViewHolderForAdapterPosition(position).itemView;
+                        ColorDrawable colorDrawable = (ColorDrawable) itemView.getBackground();
+                        int currentColor = colorDrawable.getColor();
+                        if (currentColor == Color.LTGRAY) { //取消选择
+                            itemView.setBackgroundColor(Color.TRANSPARENT);
+                            selectvideo.remove(list.get(position));
+                        } else { //选择
+                            itemView.setBackgroundColor(Color.LTGRAY);
+                            selectvideo.add(list.get(position));
+                        }
+                    }
+                    if (selectvideo.size()==0) {
+                        mainsearchbar.getMenu().clear();
+                        mainsearchbar.inflateMenu(R.menu.searchbar_menu);
+                    } else {
+                        mainsearchbar.getMenu().clear();
+                        mainsearchbar.inflateMenu(R.menu.searchbar_menu_select);
+                    }
+                }
+            },new ListMovieAdapter.OnListItemLongClickListener() {
+                @Override
+                public void OnItemLongClick(List<Video> list,int position) {
+                    View itemView = recyclerView.findViewHolderForAdapterPosition(position).itemView;
+                    ColorDrawable colorDrawable = (ColorDrawable) itemView.getBackground();
+                    int currentColor = colorDrawable.getColor();
+                    if (currentColor == Color.LTGRAY) { //取消选择
+                        itemView.setBackgroundColor(Color.TRANSPARENT);
+                        selectvideo.remove(list.get(position));
+                    } else { //选择
+                        itemView.setBackgroundColor(Color.LTGRAY);
+                        selectvideo.add(list.get(position));
+                    }
+                    if (selectvideo.size()==0) {
+                        mainsearchbar.getMenu().clear();
+                        mainsearchbar.inflateMenu(R.menu.searchbar_menu);
+                    } else {
+                        mainsearchbar.getMenu().clear();
+                        mainsearchbar.inflateMenu(R.menu.searchbar_menu_select);
+                    }
                 }
             });
             //若为水平布局
@@ -442,8 +550,6 @@ public class MainActivity extends AppCompatActivity {
      * 初始化
      */
     public void init() {
-        sideSheetHelper = new SideSheetHelper(this);
-
         SharedPreferences sharedPreferences = getSharedPreferences("Settings",MODE_PRIVATE);
         list_horizontal_layout = sharedPreferences.getBoolean("list_horizontal_layout", true);
 
@@ -451,6 +557,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView=findViewById(R.id.recyclerview);
         historyrecyclerView=findViewById(R.id.main_history_list);
         history=findViewById(R.id.main_history);
+        historymaterialToolbar=findViewById(R.id.main_history_top_MaterialToolbar);
         mainsearchview=findViewById(R.id.search_view);
         mainsearchbar=findViewById(R.id.search_bar);
         searchrecyclerView=findViewById(R.id.search_recyclerview);
@@ -460,29 +567,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 重写以处理FolderAdapter.java回调数据
+     * 申请读取权限
      */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            folder_path = data.getStringExtra("folder_path");
-            // 处理返回的结果
-            init_data();
-        }
-    }
-
-    /**
-     * 申请权限
-     */
-    public void Permission() {
+    public void ReadPermission() {
         if (Build.VERSION.SDK_INT >= 33) { //安卓13
             if (!Environment.isExternalStorageManager()) {
-                requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_VIDEO);
+                requestReadPermissionLauncher.launch(Manifest.permission.READ_MEDIA_VIDEO);
             }
         } else { //安卓7.0
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+                requestReadPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
             }
         }
     }
@@ -509,6 +603,34 @@ public class MainActivity extends AppCompatActivity {
             mainsearchview.hide();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    /**
+     * 回调数据
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_CREATE_FILE && resultCode==RESULT_OK) {
+            SharedPreferencesBackup.onActivityResult(this, requestCode, resultCode, data);
+        } else if (requestCode == REQUEST_CODE_OPEN_FILE && resultCode==RESULT_OK) {
+            SharedPreferencesBackup.onActivityResult(this, requestCode, resultCode, data);
+        } else if (requestCode == DELETE_VIDEO_CODE) {
+            if (resultCode==RESULT_OK) { //刷新并清空选中列表
+                provider.Updatelist();
+                init_data();
+                selectvideo.clear();
+                Toast.makeText(this, "成功删除", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                // 处理取消删除的情况
+                Toast.makeText(this, "取消删除", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            folder_path = data.getStringExtra("folder_path");
+            // 处理返回的结果
+            init_data();
         }
     }
 

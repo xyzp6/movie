@@ -250,9 +250,9 @@ public class PlayerActivity extends Activity {
                         } else if (operationType == 3) {
                             current += (long) disX * FACTOR;
                             if (disX > 0) {
-                                slideDialog.setSlideImage(R.drawable.fast_forward_fill1_wght400_grad0_opsz48);
+                                slideDialog.setSlideImage(R.drawable.fast_forward_fill1_wght400_grad0_opsz32);
                             } else if (disX < 0) {
-                                slideDialog.setSlideImage(R.drawable.fast_rewind_fill1_wght400_grad0_opsz48);
+                                slideDialog.setSlideImage(R.drawable.fast_rewind_fill1_wght400_grad0_opsz32);
                             }
                             if (current < 0) {
                                 current = 0;

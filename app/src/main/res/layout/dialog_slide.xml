@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/fast_forward_fill1_wght400_grad0_opsz48" />
+        android:src="@drawable/fast_forward_fill1_wght400_grad0_opsz32" />
 
     <TextView
         android:id="@+id/slide_currentTimeTextView"

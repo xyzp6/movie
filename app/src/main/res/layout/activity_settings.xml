@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="@string/settings"
-            app:navigationIcon="@drawable/arrow_back_fill0_wght400_grad0_opsz48_black" />
+            app:navigationIcon="@drawable/arrow_back_fill0_wght400_grad0_opsz32_black" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -260,7 +260,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_marginBottom="20dp"
                     android:layout_marginTop="20dp"
-                    app:icon="@drawable/link_fill0_wght400_grad0_opsz48"
+                    app:icon="@drawable/link_fill0_wght400_grad0_opsz32"
                     android:text="@string/open_source_address" />
             </RelativeLayout>
 

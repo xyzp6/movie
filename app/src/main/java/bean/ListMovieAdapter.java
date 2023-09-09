@@ -26,16 +26,21 @@ public class ListMovieAdapter extends RecyclerView.Adapter<ListMovieAdapter.MyVi
     private boolean list_horizontal_layout;
     private List<Video> list;
     private View inflater;
+    private OnItemClickListener listener;
     private OnListItemLongClickListener longListener;
     //构造方法，传入数据,即把展示的数据源传进来，并且复制给一个全局变量，以后的操作都在该数据源上进行
-    public ListMovieAdapter(Context context, List<Video> list,boolean list_horizontal_layout,OnListItemLongClickListener longListener){
+    public ListMovieAdapter(Context context, List<Video> list, boolean list_horizontal_layout, OnItemClickListener listener, OnListItemLongClickListener longListener){
         this.context = context;
         this.list = list;
         this.list_horizontal_layout=list_horizontal_layout;
+        this.listener=listener;
         this.longListener=longListener;
     }
+    public interface OnItemClickListener {
+        void OnItemClick(List<Video> list ,int position);
+    }
     public interface OnListItemLongClickListener {
-        void OnItemLongClick(Video video);
+        void OnItemLongClick(List<Video> list ,int position);
     }
     //由于RecycleAdapterDome继承自RecyclerView.Adapter,则必须重写onCreateViewHolder()，onBindViewHolder()，getItemCount()
     //onCreateViewHolder()方法用于创建ViewHolder实例，我们在这个方法将item_list_movie.xml布局加载进来
@@ -49,22 +54,20 @@ public class ListMovieAdapter extends RecyclerView.Adapter<ListMovieAdapter.MyVi
             myViewHolder.relativeLayout.setOnClickListener(new View.OnClickListener() { //点击事件
                 @Override
                 public void onClick(View v) {
-                    int position = myViewHolder.getAdapterPosition();
+                    int position = myViewHolder.getBindingAdapterPosition();
                     //传递
-                    Intent intent = new Intent(context, PlayerActivity.class);
-                    intent.putExtra("movie_position",position);
-                    intent.putExtra("movie_id",list.get(position).getId());
-                    intent.putExtra("movie_video_list",(Serializable) list);
-                    context.startActivity(intent);
+                    if(listener!=null) {
+                        listener.OnItemClick(list,position);
+                    }
                 }
             });
             myViewHolder.relativeLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    int position = myViewHolder.getAdapterPosition();
+                    int position = myViewHolder.getBindingAdapterPosition();
                     // 传递
                     if (longListener != null) {
-                        longListener.OnItemLongClick(list.get(position));
+                        longListener.OnItemLongClick(list,position);
                     }
                     return true;
                 }
@@ -77,22 +80,20 @@ public class ListMovieAdapter extends RecyclerView.Adapter<ListMovieAdapter.MyVi
             myViewHolder.linearLayout.setOnClickListener(new View.OnClickListener() { //点击事件
                 @Override
                 public void onClick(View v) {
-                    int position = myViewHolder.getAdapterPosition();
+                    int position = myViewHolder.getBindingAdapterPosition();
                     //传递
-                    Intent intent = new Intent(context, PlayerActivity.class);
-                    intent.putExtra("movie_position",position);
-                    intent.putExtra("movie_id",list.get(position).getId());
-                    intent.putExtra("movie_video_list",(Serializable) list);
-                    context.startActivity(intent);
+                    if(listener!=null) {
+                        listener.OnItemClick(list,position);
+                    }
                 }
             });
             myViewHolder.linearLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    int position = myViewHolder.getAdapterPosition();
+                    int position = myViewHolder.getBindingAdapterPosition();
                     // 传递
                     if (longListener != null) {
-                        longListener.OnItemLongClick(list.get(position));
+                        longListener.OnItemLongClick(list,position);
                     }
                     return true;
                 }

@@ -62,21 +62,35 @@
                 app:layout_behavior="@string/appbar_scrolling_view_behavior" />
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/main_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
             android:visibility="gone"
-            android:orientation="vertical"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent" >
+
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/main_history_top_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/main_history_top_MaterialToolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:menu="@menu/history_menu"
+                    app:title="@string/history" />
+
+            </com.google.android.material.appbar.AppBarLayout>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/main_history_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/main_history_top_bar" />
 
-        </LinearLayout>
+        </RelativeLayout>
 
         <!-- fab -->
         <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -90,7 +104,7 @@
                 android:layout_gravity="bottom|end"
                 android:layout_margin="16dp"
                 android:contentDescription="@string/online_link"
-                app:srcCompat="@drawable/link_fill0_wght400_grad0_opsz48"/>
+                app:srcCompat="@drawable/link_fill0_wght400_grad0_opsz32"/>
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

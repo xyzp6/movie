@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:src="@drawable/close_fill0_wght400_grad0_opsz48" />
+            android:src="@drawable/close_fill0_wght400_grad0_opsz32" />
 
     </RelativeLayout>
 

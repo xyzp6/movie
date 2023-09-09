@@ -25,12 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHistoryAdapter.MyViewHolder>{
     private final Context context;
     private final VideoProvider videoProvider;
     private final List<String> idlist=new ArrayList<>();
     private final List<Long> timelist=new ArrayList<>();
+    private final List<String> titlelist=new ArrayList<>();
     private View inflater;
     //构造方法，传入数据,即把展示的数据源传进来，并且复制给一个全局变量，以后的操作都在该数据源上进行
     public ListMovieHistoryAdapter(Context context,VideoProvider videoProvider){
@@ -43,8 +45,12 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
                 String key = entry.getKey();
                 long value = (Long) entry.getValue();
                 if(value!=0) {
-                    idlist.add(key);
-                    timelist.add(value);
+                    String title=videoProvider.getNameFromId(Integer.parseInt(key));
+                    if (!Objects.equals(title, "")) {
+                        idlist.add(key);
+                        timelist.add(value);
+                        titlelist.add(title);
+                    }
                 }
             }
         }
@@ -77,7 +83,7 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
     public void onBindViewHolder(MyViewHolder holder, int position) {
         //将数据和控件绑定
         int id=Integer.parseInt(idlist.get(position));
-        holder.nametextView.setText(videoProvider.getNameFromId(id));
+        holder.nametextView.setText(titlelist.get(position));
         holder.timetextView.setText(formatTime(timelist.get(position)));
         holder.imageView.setImageBitmap(MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), id, MediaStore.Video.Thumbnails.MINI_KIND, null));
     }

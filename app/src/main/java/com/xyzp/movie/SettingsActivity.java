@@ -82,20 +82,6 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
         init();
 
-        int screenBrightness = 0;
-        try {
-            screenBrightness = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
-        } catch (Settings.SettingNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        float brightnessValue = screenBrightness / 255.0f;
-        System.out.println(brightnessValue);
-
-
-//        ContentResolver contentResolver = getContentResolver();
-//        int defVal = 125;
-//        System.out.println(Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, defVal));
-
         //顶部栏返回按钮事件
         materialToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
