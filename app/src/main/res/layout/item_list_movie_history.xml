@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/item_history"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/transparent"
-    android:layout_margin="10dp"
     android:padding="10dp">
 
     <!-- 图片 -->
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/history_picture"
         android:layout_width="120dp"
         android:layout_height="60dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/movie_fill0_wght400_grad0_opsz32">
-    </ImageView>
+        android:src="@drawable/movie_fill0_wght400_grad0_opsz32"
+        app:shapeAppearanceOverlay="@style/RoundedCorners" />
 
     <RelativeLayout
         android:layout_width="wrap_content"

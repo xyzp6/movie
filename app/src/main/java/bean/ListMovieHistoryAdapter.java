@@ -5,6 +5,7 @@ import static android.content.Context.MODE_PRIVATE;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,7 +86,27 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
         int id=Integer.parseInt(idlist.get(position));
         holder.nametextView.setText(titlelist.get(position));
         holder.timetextView.setText(formatTime(timelist.get(position)));
-        holder.imageView.setImageBitmap(MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), id, MediaStore.Video.Thumbnails.MINI_KIND, null));
+
+        // 在后台线程中加载真正的图像
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final Bitmap thumbnail = MediaStore.Video.Thumbnails.getThumbnail(
+                        context.getContentResolver(),
+                        id,
+                        MediaStore.Video.Thumbnails.MINI_KIND,
+                        null);
+
+
+                // 在主线程中更新 ImageView
+                holder.imageView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        holder.imageView.setImageBitmap(thumbnail);
+                    }
+                });
+            }
+        }).start();
     }
     //getItemCount()告诉RecyclerView一共有多少个子项，直接返回数据源的长度。
     @Override

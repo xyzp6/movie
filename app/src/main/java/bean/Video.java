@@ -14,7 +14,7 @@ public class Video implements Serializable{
     private String displayName;
     private String mimeType;
     private String path;
-    private Uri uri;
+    private String uri;
     private long size;
     private long duration;
     private String folderName;
@@ -38,7 +38,7 @@ public class Video implements Serializable{
      * @param folderName
      */
     public Video(int id, String title, String album, String artist,
-                 String displayName, String mimeType, String path,Uri uri, long size,
+                 String displayName, String mimeType, String path,String uri, long size,
                  long duration,String folderName) {
         super();
         this.id = id;
@@ -110,11 +110,11 @@ public class Video implements Serializable{
         this.path = path;
     }
 
-    public Uri getUri() {
+    public String getUri() {
         return uri;
     }
 
-    public void setUri(Uri uri) {
+    public void setUri(String uri) {
         this.uri = uri;
     }
 

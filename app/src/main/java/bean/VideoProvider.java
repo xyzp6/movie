@@ -57,7 +57,7 @@ public class VideoProvider implements AbstructProvider {
                     String path = cursor
                             .getString(cursor
                                     .getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
-                    Uri uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);
+                    String uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id).toString();
                     long duration = cursor
                             .getLong(cursor
                                     .getColumnIndexOrThrow(MediaStore.Video.Media.DURATION));

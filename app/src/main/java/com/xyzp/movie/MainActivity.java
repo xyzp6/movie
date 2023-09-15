@@ -37,6 +37,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -92,8 +93,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Video> searchlist,movielist,selectvideo=new ArrayList<>();
     private ActivityResultLauncher<String> requestReadPermissionLauncher,requestWritePermissionLauncher;
     private RecyclerView recyclerView,searchrecyclerView,historyrecyclerView;
-    private CoordinatorLayout searchCoordinatorLayout;
-    private RelativeLayout history;
+    private RelativeLayout history,searchRelativeLayout;
     private NavigationRailView navigationRailView;
     private BottomNavigationView bottomNavigationView;
     private MaterialToolbar historymaterialToolbar;
@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
                     } else if (menuItem.getItemId()==R.id.searchbar_menu_delete) {
                         List<Uri> uris=new ArrayList<>();
                         for (Video video:selectvideo) {
-                            uris.add(video.getUri());
+                            uris.add(Uri.parse(video.getUri()));
                         }
                         PendingIntent intent = null;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -340,11 +340,11 @@ public class MainActivity extends AppCompatActivity {
                 if (itemId == R.id.menu_loacl) {
                     item.setIcon(R.drawable.movie_fill1_wght400_grad0_opsz32);
                     history.setVisibility(View.GONE);
-                    searchCoordinatorLayout.setVisibility(View.VISIBLE);
+                    searchRelativeLayout.setVisibility(View.VISIBLE);
                     return true;
                 } else if (itemId == R.id.menu_history) {
                     menu.findItem(R.id.menu_loacl).setIcon(R.drawable.movie_fill0_wght400_grad0_opsz32);
-                    searchCoordinatorLayout.setVisibility(View.GONE);
+                    searchRelativeLayout.setVisibility(View.GONE);
                     history.setVisibility(View.VISIBLE);
 
                     ListMovieHistoryAdapter listMovieHistoryAdapter=new ListMovieHistoryAdapter(MainActivity.this, provider);
@@ -375,6 +375,7 @@ public class MainActivity extends AppCompatActivity {
                     if(selectfolder.size()==0) {
                         folder_path=data;
                         init_data();
+                        System.out.println("123");
                     } else { //已有选中的内容
                         View itemView = recyclerView.findViewHolderForAdapterPosition(position).itemView;
                         ColorDrawable colorDrawable = (ColorDrawable) itemView.getBackground();
@@ -562,7 +563,7 @@ public class MainActivity extends AppCompatActivity {
         mainsearchbar=findViewById(R.id.search_bar);
         searchrecyclerView=findViewById(R.id.search_recyclerview);
         mainsearchlinearprogress=findViewById(R.id.search_LinearProgressIndicator);
-        searchCoordinatorLayout=findViewById(R.id.search_CoordinatorLayout);
+        searchRelativeLayout=findViewById(R.id.search_RelativeLayout);
         fabonline=findViewById(R.id.floating_action_button_online);
     }
 

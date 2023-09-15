@@ -3,7 +3,10 @@ package bean;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
+import android.os.Build;
 import android.provider.MediaStore;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.xyzp.movie.PlayerActivity;
 import com.xyzp.movie.R;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +112,28 @@ public class ListMovieAdapter extends RecyclerView.Adapter<ListMovieAdapter.MyVi
     public void onBindViewHolder(MyViewHolder holder, int position) {
         //将数据和控件绑定
         holder.textView.setText(list.get(position).getTitle());
-        holder.imageView.setImageBitmap(MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), list.get(position).getId(), MediaStore.Video.Thumbnails.MINI_KIND, null));
+//        holder.imageView.setImageBitmap(MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), list.get(position).getId(), MediaStore.Video.Thumbnails.MINI_KIND, null));
+
+        // 在后台线程中加载真正的图像
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final Bitmap thumbnail = MediaStore.Video.Thumbnails.getThumbnail(
+                            context.getContentResolver(),
+                            list.get(holder.getLayoutPosition()).getId(),
+                            MediaStore.Video.Thumbnails.MINI_KIND,
+                            null);
+
+
+                // 在主线程中更新 ImageView
+                holder.imageView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        holder.imageView.setImageBitmap(thumbnail);
+                    }
+                });
+            }
+        }).start();
     }
     //getItemCount()告诉RecyclerView一共有多少个子项，直接返回数据源的长度。
     @Override

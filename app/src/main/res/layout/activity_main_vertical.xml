@@ -16,20 +16,21 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintlayout_top"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_above="@+id/navigation_bottom">
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/search_CoordinatorLayout"
+        <RelativeLayout
+            android:id="@+id/search_RelativeLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent" >
+            app:layout_constraintTop_toTopOf="parent">
             <com.google.android.material.appbar.AppBarLayout
                 android:id="@+id/search_appbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/transparent">
+                android:background="@color/transparent"
+                app:layout_behavior="@string/searchbar_scrolling_view_behavior" >
                 <com.google.android.material.search.SearchBar
                     android:id="@+id/search_bar"
                     android:layout_width="match_parent"
@@ -40,8 +41,7 @@
                 android:id="@+id/search_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/searchbar_hint"
-                app:layout_anchor="@id/search_bar">
+                android:hint="@string/searchbar_hint">
                 <!-- Search suggestions/results go here (ScrollView, RecyclerView, etc.). -->
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/search_LinearProgressIndicator"
@@ -58,9 +58,9 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerview"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+                android:layout_height="match_parent"
+                android:layout_below="@+id/search_appbar" />
+        </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/main_history"

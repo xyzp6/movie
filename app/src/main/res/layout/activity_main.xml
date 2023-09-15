@@ -28,8 +28,8 @@
         android:layout_alignParentEnd="true"
         android:orientation="horizontal">
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/search_CoordinatorLayout"
+        <RelativeLayout
+            android:id="@+id/search_RelativeLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <com.google.android.material.appbar.AppBarLayout
@@ -47,8 +47,7 @@
                 android:id="@+id/search_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/searchbar_hint"
-                app:layout_anchor="@id/search_bar">
+                android:hint="@string/searchbar_hint" >
                 <!-- Search suggestions/results go here (ScrollView, RecyclerView, etc.). -->
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/search_LinearProgressIndicator"
@@ -66,8 +65,8 @@
                 android:id="@+id/recyclerview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+                android:layout_below="@+id/search_appbar"/>
+        </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/main_history"
