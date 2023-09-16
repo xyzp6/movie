@@ -8,6 +8,8 @@ import java.io.Serializable;
 public class Video implements Serializable{
     private static final long serialVersionUID = -7920222595800367956L;
     private int id;
+    private int width;
+    private int height;
     private String title;
     private String album;
     private String artist;
@@ -37,11 +39,13 @@ public class Video implements Serializable{
      * @param duration
      * @param folderName
      */
-    public Video(int id, String title, String album, String artist,
+    public Video(int id,int width,int height, String title, String album, String artist,
                  String displayName, String mimeType, String path,String uri, long size,
                  long duration,String folderName) {
         super();
         this.id = id;
+        this.width = width;
+        this.height = height;
         this.title = title;
         this.album = album;
         this.artist = artist;
@@ -60,6 +64,22 @@ public class Video implements Serializable{
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
     }
 
     public String getTitle() {

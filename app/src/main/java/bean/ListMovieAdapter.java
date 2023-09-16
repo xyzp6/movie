@@ -3,6 +3,7 @@ package bean;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -24,22 +25,27 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ListMovieAdapter extends RecyclerView.Adapter<ListMovieAdapter.MyViewHolder>{
     private Context context;
+    private int cnt=0;
     private boolean list_horizontal_layout;
     private List<Video> list;
+    private List<Boolean> selectedStates;
     private View inflater;
     private OnItemClickListener listener;
     private OnListItemLongClickListener longListener;
     //构造方法，传入数据,即把展示的数据源传进来，并且复制给一个全局变量，以后的操作都在该数据源上进行
+    public ListMovieAdapter(){}
     public ListMovieAdapter(Context context, List<Video> list, boolean list_horizontal_layout, OnItemClickListener listener, OnListItemLongClickListener longListener){
         this.context = context;
         this.list = list;
         this.list_horizontal_layout=list_horizontal_layout;
         this.listener=listener;
         this.longListener=longListener;
+        this.selectedStates = new ArrayList<>(Collections.nCopies(list.size(), false));
     }
     public interface OnItemClickListener {
         void OnItemClick(List<Video> list ,int position);
@@ -63,6 +69,15 @@ public class ListMovieAdapter extends RecyclerView.Adapter<ListMovieAdapter.MyVi
                     //传递
                     if(listener!=null) {
                         listener.OnItemClick(list,position);
+                        if(cnt!=0) { //有选中项
+                            if (selectedStates.get(position)) {
+                                selectedStates.set(position,false);
+                                cnt--;
+                            } else {
+                                selectedStates.set(position,true);
+                                cnt++;
+                            }
+                        }
                     }
                 }
             });
@@ -73,13 +88,19 @@ public class ListMovieAdapter extends RecyclerView.Adapter<ListMovieAdapter.MyVi
                     // 传递
                     if (longListener != null) {
                         longListener.OnItemLongClick(list,position);
+                        if (selectedStates.get(position)) {
+                            selectedStates.set(position,false);
+                            cnt--;
+                        } else {
+                            selectedStates.set(position,true);
+                            cnt++;
+                        }
                     }
                     return true;
                 }
             });
             return myViewHolder;
-        }
-        else {
+        } else {
             inflater = LayoutInflater.from(context).inflate(R.layout.item_list_movie_grid,parent,false);
             MyViewHolder myViewHolder = new MyViewHolder(inflater);
             myViewHolder.linearLayout.setOnClickListener(new View.OnClickListener() { //点击事件
@@ -89,6 +110,15 @@ public class ListMovieAdapter extends RecyclerView.Adapter<ListMovieAdapter.MyVi
                     //传递
                     if(listener!=null) {
                         listener.OnItemClick(list,position);
+                        if(cnt!=0) { //有选中项
+                            if (selectedStates.get(position)) {
+                                selectedStates.set(position,false);
+                                cnt--;
+                            } else {
+                                selectedStates.set(position,true);
+                                cnt++;
+                            }
+                        }
                     }
                 }
             });
@@ -99,6 +129,13 @@ public class ListMovieAdapter extends RecyclerView.Adapter<ListMovieAdapter.MyVi
                     // 传递
                     if (longListener != null) {
                         longListener.OnItemLongClick(list,position);
+                        if (selectedStates.get(position)) {
+                            selectedStates.set(position,false);
+                            cnt--;
+                        } else {
+                            selectedStates.set(position,true);
+                            cnt++;
+                        }
                     }
                     return true;
                 }
@@ -112,7 +149,13 @@ public class ListMovieAdapter extends RecyclerView.Adapter<ListMovieAdapter.MyVi
     public void onBindViewHolder(MyViewHolder holder, int position) {
         //将数据和控件绑定
         holder.textView.setText(list.get(position).getTitle());
-//        holder.imageView.setImageBitmap(MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), list.get(position).getId(), MediaStore.Video.Thumbnails.MINI_KIND, null));
+
+        // 根据选中状态设置背景颜色
+        if (selectedStates.get(position)) {
+            holder.itemView.setBackgroundColor(Color.LTGRAY);
+        } else {
+            holder.itemView.setBackgroundColor(Color.TRANSPARENT);
+        }
 
         // 在后台线程中加载真正的图像
         new Thread(new Runnable() {
@@ -140,6 +183,16 @@ public class ListMovieAdapter extends RecyclerView.Adapter<ListMovieAdapter.MyVi
     public int getItemCount() {
         //返回Item总条数
         return list.size();
+    }
+
+    public void resetSelectedStates() { //返回时重置选中状态
+        for (int i = 0; i < selectedStates.size(); i++) {
+            if (selectedStates.get(i)) {
+                selectedStates.set(i, false);
+                notifyItemChanged(i);
+            }
+        }
+        cnt=0;
     }
 
     //内部类，绑定控件

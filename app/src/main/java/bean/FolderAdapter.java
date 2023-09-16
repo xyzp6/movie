@@ -1,6 +1,7 @@
 package bean;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.xyzp.movie.R;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHolder>{
     private Context context;
+    private int cnt=0;
     private boolean list_horizontal_layout;
     private List<String> list;
+    private List<Boolean> selectedStates;
     private View inflater;
     private OnItemClickListener listener;
     private OnItemLongClickListener longListener;
@@ -28,6 +33,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
         this.list_horizontal_layout=list_horizontal_layout;
         this.listener=listener;
         this.longListener=longListener;
+        this.selectedStates = new ArrayList<>(Collections.nCopies(list.size(), false));
     }
     public interface OnItemClickListener {
         void onItemClick(String data,int position);
@@ -51,6 +57,15 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
                     int position = myViewHolder.getBindingAdapterPosition();
                     if (listener != null) {
                         listener.onItemClick(list.get(position),position);
+                        if(cnt!=0) { //有选中项
+                            if (selectedStates.get(position)) {
+                                selectedStates.set(position,false);
+                                cnt--;
+                            } else {
+                                selectedStates.set(position,true);
+                                cnt++;
+                            }
+                        }
                     }
                 }
             });
@@ -61,6 +76,13 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
                     // 传递
                     if (longListener != null) {
                         longListener.OnItemLongClick(list.get(position),position);
+                        if (selectedStates.get(position)) {
+                            selectedStates.set(position,false);
+                            cnt--;
+                        } else {
+                            selectedStates.set(position,true);
+                            cnt++;
+                        }
                     }
                     return true;
                 }
@@ -76,6 +98,15 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
                     //传递
                     if (listener != null) {
                         listener.onItemClick(list.get(position),position);
+                        if(cnt!=0) { //有选中项
+                            if (selectedStates.get(position)) {
+                                selectedStates.set(position,false);
+                                cnt--;
+                            } else {
+                                selectedStates.set(position,true);
+                                cnt++;
+                            }
+                        }
                     }
                 }
             });
@@ -86,6 +117,13 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
                     // 传递
                     if (longListener != null) {
                         longListener.OnItemLongClick(list.get(position),position);
+                        if (selectedStates.get(position)) {
+                            selectedStates.set(position,false);
+                            cnt--;
+                        } else {
+                            selectedStates.set(position,true);
+                            cnt++;
+                        }
                     }
                     return true;
                 }
@@ -99,12 +137,29 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
     public void onBindViewHolder(MyViewHolder holder, int position) {
         //将数据和控件绑定
         holder.textView.setText(list.get(position));
+
+        // 根据选中状态设置背景颜色
+        if (selectedStates.get(position)) {
+            holder.itemView.setBackgroundColor(Color.LTGRAY);
+        } else {
+            holder.itemView.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
     //getItemCount()告诉RecyclerView一共有多少个子项，直接返回数据源的长度。
     @Override
     public int getItemCount() {
         //返回Item总条数
         return list.size();
+    }
+
+    public void resetSelectedStates() { //返回时重置选中状态
+        for (int i = 0; i < selectedStates.size(); i++) {
+            if (selectedStates.get(i)) {
+                selectedStates.set(i, false);
+                notifyItemChanged(i);
+            }
+        }
+        cnt=0;
     }
 
     //内部类，绑定控件

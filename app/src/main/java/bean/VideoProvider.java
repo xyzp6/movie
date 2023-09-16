@@ -42,6 +42,9 @@ public class VideoProvider implements AbstructProvider {
                 while (cursor.moveToNext()) {
                     int id = cursor.getInt(cursor
                             .getColumnIndexOrThrow(MediaStore.Video.Media._ID));
+                    int width = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.WIDTH));
+                    int height = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.HEIGHT));
+
                     String album = cursor
                             .getString(cursor
                                     .getColumnIndexOrThrow(MediaStore.Video.Media.ALBUM));
@@ -76,7 +79,7 @@ public class VideoProvider implements AbstructProvider {
                         title = title.substring(0, dotIndex);
                     }
 
-                    Video video = new Video(id, title, album, artist, displayName, mimeType, path,uri, size, duration,folderName);
+                    Video video = new Video(id,width,height, title, album, artist, displayName, mimeType, path,uri, size, duration,folderName);
 
                     list.add(video);
                 }

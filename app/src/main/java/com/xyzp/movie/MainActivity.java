@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
     private MaterialToolbar historymaterialToolbar;
     private String folder_path;
     private VideoProvider provider;
+    private FolderAdapter folderAdapter;
     private ListMovieAdapter listMovieAdapter;
     private boolean list_horizontal_layout,searchstatus; //布局方式，默认水平;搜索状态，false为未在布局中
 
@@ -369,13 +370,12 @@ public class MainActivity extends AppCompatActivity {
     public void init_data() {
         if(folder_path==null) { //文件夹页面
             List<String> list = provider.getFolderList();
-            FolderAdapter folderAdapter = new FolderAdapter(this, list, list_horizontal_layout, new FolderAdapter.OnItemClickListener() {
+            folderAdapter = new FolderAdapter(this, list, list_horizontal_layout, new FolderAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(String data,int position) {
                     if(selectfolder.size()==0) {
                         folder_path=data;
                         init_data();
-                        System.out.println("123");
                     } else { //已有选中的内容
                         View itemView = recyclerView.findViewHolderForAdapterPosition(position).itemView;
                         ColorDrawable colorDrawable = (ColorDrawable) itemView.getBackground();
@@ -597,11 +597,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         //判断当前在文件内或外，是否处于搜索页面
-        if(!Objects.equals(folder_path, null)) {
+        if (searchstatus) { //搜索
+            mainsearchview.hide();
+            searchstatus=false;
+        } else if (selectvideo.size()!=0) { //文件夹内选中
+            selectvideo.clear();
+            mainsearchbar.getMenu().clear();
+            mainsearchbar.inflateMenu(R.menu.searchbar_menu);
+            listMovieAdapter.resetSelectedStates(); //重置背景色
+        } else if(!Objects.equals(folder_path, null)) { //文件夹内未选中
             folder_path=null;
             init_data();
-        } else if (searchstatus) {
-            mainsearchview.hide();
+        } else if (selectfolder.size()!=0) { //文件夹
+            selectfolder.clear();
+            mainsearchbar.getMenu().clear();
+            mainsearchbar.inflateMenu(R.menu.searchbar_menu);
+            folderAdapter.resetSelectedStates(); //重置背景色
         } else {
             super.onBackPressed();
         }
