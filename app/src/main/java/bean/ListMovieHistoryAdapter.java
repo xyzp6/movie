@@ -67,7 +67,7 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
             myViewHolder.relativeLayout.setOnClickListener(new View.OnClickListener() { //点击事件
                 @Override
                 public void onClick(View v) {
-                    int position = myViewHolder.getAdapterPosition();
+                    int position = myViewHolder.getBindingAdapterPosition();
                     int id=Integer.parseInt(idlist.get(position));
                     //传递
                     Intent intent = new Intent(context, PlayerActivity.class);

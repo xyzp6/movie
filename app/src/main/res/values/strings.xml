@@ -5,6 +5,8 @@
     <string name="imports">导入</string>
     <string name="exports">导出</string>
     <string name="info">详情</string>
+    <string name="info_size">文件大小</string>
+    <string name="video_number">视频数量</string>
     <string name="delete">删除</string>
     <string name="layout">布局</string>
     <string name="grid">网格</string>

@@ -1,28 +1,15 @@
 package com.xyzp.movie;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.ContentResolver;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.Settings;
-import android.text.method.BaseKeyListener;
-import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
-import android.util.Base64;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,26 +19,22 @@ import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.color.DynamicColors;
-import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
-import com.google.android.material.navigation.NavigationView;
 
-import org.w3c.dom.Text;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import bean.StatusBar;
@@ -174,25 +157,49 @@ public class SettingsActivity extends AppCompatActivity {
                             Uri imageUri = data.getData();
 
                             try {
+                                // 创建一个指向应用缓存目录的文件对象
+                                File cacheDir = getCacheDir();
+                                File imageFile = new File(cacheDir, "bg.png");
+
+                                // 打开输入流
                                 InputStream inputStream = getContentResolver().openInputStream(imageUri);
-                                Drawable drawable = Drawable.createFromStream(inputStream, imageUri.toString());
 
-                                // 将 Drawable 转换为 Bitmap
-                                Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+                                // 打开输出流
+                                FileOutputStream fos = new FileOutputStream(imageFile);
 
-                                // 将 Bitmap 转换为字节数组
-                                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-                                byte[] byteArray = byteArrayOutputStream.toByteArray();
+                                // 创建一个缓冲区
+                                byte[] buffer = new byte[1024];
+                                int bytesRead;
 
-                                // 将字节数组编码为 Base64 字符串
-                                String encodedImage = Base64.encodeToString(byteArray, Base64.DEFAULT);
+                                // 将输入流的数据写入输出流
+                                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                                    fos.write(buffer, 0, bytesRead);
+                                }
 
-                                // 将编码后的字符串存储在 SharedPreferences 中
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.putString("mainbg", encodedImage);
-                                editor.apply();
-                            } catch (FileNotFoundException e) {
+                                // 关闭流
+                                inputStream.close();
+                                fos.close();
+
+                                new MaterialAlertDialogBuilder(SettingsActivity.this)
+                                        .setTitle("重启应用生效")
+                                        .setMessage("迎接更美好的下一次启动")
+                                        .setPositiveButton("立即重启", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                Intent intent = getBaseContext().getPackageManager()
+                                                        .getLaunchIntentForPackage(getBaseContext().getPackageName());
+                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                startActivity(intent);
+                                            }
+                                        })
+                                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                // 处理取消按钮的点击事件
+                                            }
+                                        })
+                                        .show();
+                            } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
@@ -210,9 +217,34 @@ public class SettingsActivity extends AppCompatActivity {
         mainpicdefaultbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("mainbg", "");
-                editor.apply();
+                // 创建一个指向应用缓存目录的文件对象
+                File cacheDir = getCacheDir();
+                File imageFile = new File(cacheDir, "bg.png");
+
+                // 检查图片是否存在
+                if (imageFile.exists()) {
+                    imageFile.delete();
+                }
+
+                new MaterialAlertDialogBuilder(SettingsActivity.this)
+                        .setTitle("重启应用生效")
+                        .setMessage("迎接更美好的下一次启动")
+                        .setPositiveButton("立即重启", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = getBaseContext().getPackageManager()
+                                        .getLaunchIntentForPackage(getBaseContext().getPackageName());
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 处理取消按钮的点击事件
+                            }
+                        })
+                        .show();
             }
         });
 

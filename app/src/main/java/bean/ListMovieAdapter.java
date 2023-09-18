@@ -195,6 +195,19 @@ public class ListMovieAdapter extends RecyclerView.Adapter<ListMovieAdapter.MyVi
         cnt=0;
     }
 
+    public void removeSelectedItems() {
+        for (int i = selectedStates.size() - 1; i >= 0; i--) {
+            if (selectedStates.get(i)) {
+                // 从列表中移除item
+                list.remove(i);
+                selectedStates.remove(i);
+                // 通知adapter更新
+                notifyItemRemoved(i);
+            }
+        }
+    }
+
+
     //内部类，绑定控件
     class MyViewHolder extends RecyclerView.ViewHolder{
         RelativeLayout relativeLayout;

@@ -66,7 +66,7 @@ public class PlayerActivity extends Activity {
     private SlideDialog slideDialog;
     private List<Video> videoList;
     private DefaultTrackSelector trackSelector;
-    private boolean controllersVisible = true, tip = true, toodark = false ; //组件可视，提示，昏暗场景警告
+    private boolean controllersVisible = true, tip = true, reminder= false, playSituation=true; //组件可视，提示，进度提醒，播放情况
     private int movieid=0,checkedItem = 2; // 倍速,默认选中 1x
     //服务于页面滑动
     private int x=0,y=0, operationType = 0; //xy初始坐标,operationType  0: 未知, 1: 改变亮度, 2: 改变音量, 3: 改变进度, 4: 下拉通知栏
@@ -88,23 +88,9 @@ public class PlayerActivity extends Activity {
             setContentView(R.layout.activity_player_vertical);
         }
         init();
-
-        if (tip) {
-            //监测光线传感器数据
-            lightSensorUtils=new LightSensorUtils(this);
-            lightSensorUtils.setLightListener(new LightSensorUtils.LightListener() {
-                @Override
-                public void getLight(float value) {
-                    if (value<15 && !toodark) {
-                        toodark=true;
-                        Toast.makeText(PlayerActivity.this, "当前环境过于昏暗！"+value, Toast.LENGTH_SHORT).show();
-                    }
-                    else if (value>=15 && toodark) {
-                        toodark=false;
-                        Toast.makeText(PlayerActivity.this, "已恢复明亮环境！"+value, Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+        if(savedInstanceState != null) {
+            reminder = savedInstanceState.getBoolean("reminder");
+            playSituation = sharedPreferences.getBoolean("play_situation", false);
         }
 
         //获取传递的值
@@ -116,18 +102,27 @@ public class PlayerActivity extends Activity {
         videoList= (List<Video>) intent.getSerializableExtra("movie_video_list");
         prepare(position,url,moviepath);
 
-        if(savedInstanceState != null) {
-            boolean playSituation = sharedPreferences.getBoolean("play_situation", false);
-            if(playSituation) { //回后台前正在播放
-                player.play();
-                playButton.setImageResource(R.drawable.pause_fill1_wght400_grad0_opsz48);
-            } else {
-                player.pause();
-                playButton.setImageResource(R.drawable.play_arrow_fill1_wght400_grad0_opsz48);
-            }
-        } else { //第一次启动
-            player.play(); // 开始播放
+        if(playSituation) { //回后台前正在播放，第一次播放
+            player.play();
             playButton.setImageResource(R.drawable.pause_fill1_wght400_grad0_opsz48);
+        } else {
+            player.pause();
+            playButton.setImageResource(R.drawable.play_arrow_fill1_wght400_grad0_opsz48);
+        }
+
+        //提醒
+        if (tip) {
+            //监测光线传感器数据
+            lightSensorUtils=new LightSensorUtils(this);
+            lightSensorUtils.setLightListener(new LightSensorUtils.LightListener() {
+                @Override
+                public void getLight(float value) {
+                    if (value<10 && !reminder) { //第两次reminder使用
+                        Toast.makeText(PlayerActivity.this, "当前环境过于昏暗！", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            reminder=true; //两次reminder使用完成，设为true
         }
 
         new CountDownTimer(5000, 1000) {
@@ -164,7 +159,8 @@ public class PlayerActivity extends Activity {
                 long currentposition=sharedPreferences.getLong(String.valueOf(videoList.get(player.getCurrentMediaItemIndex()).getId()),0);
                 if(currentposition!=0) {
                     player.seekTo(currentposition);
-                    Snackbar.make(findViewById(R.id.video), "从头开始", Snackbar.LENGTH_LONG).setAction("确认", new View.OnClickListener() {
+                    final View viewPos = findViewById(R.id.snack_location);
+                    Snackbar.make(viewPos, "从头开始", Snackbar.LENGTH_LONG).setAction("确认", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             player.seekTo(0);
@@ -413,12 +409,15 @@ public class PlayerActivity extends Activity {
         long currentposition=sharedPreferences.getLong(String.valueOf(movieid),0);
         if(currentposition!=0) {
             player.seekTo(position,currentposition);
-            Snackbar.make(findViewById(R.id.video), "从头开始", Snackbar.LENGTH_LONG).setAction("确认", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    player.seekTo(0);
-                }
-            }).setActionTextColor(getColor(R.color.purple_200)).show();
+            if (!reminder) { //此处第一次调用reminder
+                final View viewPos = findViewById(R.id.snack_location);
+                Snackbar.make(viewPos, "从头开始", Snackbar.LENGTH_LONG).setAction("确认", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        player.seekTo(0);
+                    }
+                }).setActionTextColor(getColor(R.color.purple_200)).show();
+            }
         } else {
             player.seekTo(position,0);
         }
@@ -600,7 +599,7 @@ public class PlayerActivity extends Activity {
      */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putBoolean("progress",true);
+        outState.putBoolean("reminder",true); //已提醒
         super.onSaveInstanceState(outState);
     }
 

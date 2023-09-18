@@ -175,18 +175,20 @@
                     android:layout_marginTop="20dp"
                     android:text="@string/picture_main"/>
 
-                <RelativeLayout
+                <com.google.android.flexbox.FlexboxLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginBottom="20dp"
                     android:layout_marginTop="10dp"
-                    android:layout_below="@+id/settings_main_forpictures" >
+                    android:layout_below="@+id/settings_main_forpictures"
+                    app:flexWrap="wrap">
                     <Button
                         style="@style/Widget.Material3.Button"
                         android:id="@+id/settings_main_selpictures"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="20dp"
                         app:icon="@drawable/photo_library_fill0_wght400_grad0_opsz24"
                         android:text="@string/picture_main_button" />
                     <Button
@@ -194,12 +196,11 @@
                         android:id="@+id/settings_main_defaultpictures"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_toRightOf="@+id/settings_main_selpictures"
+                        android:layout_marginEnd="20dp"
                         app:icon="@drawable/photo_library_fill0_wght400_grad0_opsz24"
                         android:text="@string/picture_main_button_default" />
 
-                </RelativeLayout>
+                </com.google.android.flexbox.FlexboxLayout>
             </RelativeLayout>
 
             <!-- 关于 -->

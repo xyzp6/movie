@@ -53,6 +53,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -67,6 +68,8 @@ import com.google.android.material.search.SearchBar;
 import com.google.android.material.search.SearchView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.Serializable;
@@ -89,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
     private SearchBar mainsearchbar;
     private LinearProgressIndicator mainsearchlinearprogress;
     private FloatingActionButton fabonline;
-    private List<String> selectfolder=new ArrayList<>();
     private List<Video> searchlist,movielist,selectvideo=new ArrayList<>();
     private ActivityResultLauncher<String> requestReadPermissionLauncher,requestWritePermissionLauncher;
     private RecyclerView recyclerView,searchrecyclerView,historyrecyclerView;
@@ -157,15 +159,25 @@ public class MainActivity extends AppCompatActivity {
         init();
 
         //设置主页背景
-        SharedPreferences sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
-        String bg=sharedPreferences.getString("mainbg","");
-        if(!bg.equals("")) {
-            byte[] byteArray = Base64.decode(bg, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-            Drawable drawable = new BitmapDrawable(getResources(), bitmap);
-            mainbg.setImageDrawable(drawable);
+        try {
+            // 创建一个指向应用缓存目录的文件对象
+            File cacheDir = getCacheDir();
+            File imageFile = new File(cacheDir, "bg.png");
+
+            // 检查图片是否存在
+            if (imageFile.exists()) {
+                // 从文件中读取位图数据
+                Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+
+                // 使用位图数据
+                Drawable drawable = new BitmapDrawable(getResources(), bitmap);
+                mainbg.setImageDrawable(drawable);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         //设置提示
+        SharedPreferences sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
         if (sharedPreferences.getBoolean("tip",true)) {
             GlobalApplication application = (GlobalApplication) getApplication();
             if (!application.hasShownGreeting) {
@@ -220,8 +232,6 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 })
                                 .show();
-                    } else if (menuItem.getItemId()==R.id.searchbar_menu_info) {
-                        
                     } else if (menuItem.getItemId()==R.id.searchbar_menu_delete) {
                         List<Uri> uris=new ArrayList<>();
                         for (Video video:selectvideo) {
@@ -347,16 +357,7 @@ public class MainActivity extends AppCompatActivity {
                     menu.findItem(R.id.menu_loacl).setIcon(R.drawable.movie_fill0_wght400_grad0_opsz32);
                     searchRelativeLayout.setVisibility(View.GONE);
                     history.setVisibility(View.VISIBLE);
-
-                    ListMovieHistoryAdapter listMovieHistoryAdapter=new ListMovieHistoryAdapter(MainActivity.this, provider);
-                    //创建线性布局
-                    LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
-                    //水平方向
-                    manager.setOrientation(LinearLayoutManager.VERTICAL);
-                    //给RecyclerView设置布局管理器
-                    historyrecyclerView.setLayoutManager(manager);
-                    historyrecyclerView.setAdapter(listMovieHistoryAdapter);
-
+                    init_data_history(); //初始化数据
                     return true;
                 }
                 return false;
@@ -373,49 +374,37 @@ public class MainActivity extends AppCompatActivity {
             folderAdapter = new FolderAdapter(this, list, list_horizontal_layout, new FolderAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(String data,int position) {
-                    if(selectfolder.size()==0) {
-                        folder_path=data;
-                        init_data();
-                    } else { //已有选中的内容
-                        View itemView = recyclerView.findViewHolderForAdapterPosition(position).itemView;
-                        ColorDrawable colorDrawable = (ColorDrawable) itemView.getBackground();
-                        int currentColor = colorDrawable.getColor();
-                        if (currentColor == Color.LTGRAY) { //取消选择
-                            itemView.setBackgroundColor(Color.TRANSPARENT);
-                            selectfolder.remove(data);
-                        } else { //选择
-                            itemView.setBackgroundColor(Color.LTGRAY);
-                            selectfolder.add(data);
-                        }
-                    }
-                    if (selectfolder.size()==0) {
-                        mainsearchbar.getMenu().clear();
-                        mainsearchbar.inflateMenu(R.menu.searchbar_menu);
-                    } else {
-                        mainsearchbar.getMenu().clear();
-                        mainsearchbar.inflateMenu(R.menu.searchbar_menu_select_folder);
-                    }
+                    folder_path=data;
+                    init_data();
                 }
             }, new FolderAdapter.OnItemLongClickListener() {
                 @Override
                 public void OnItemLongClick(String data,int position) {
-                    View itemView = recyclerView.findViewHolderForAdapterPosition(position).itemView;
-                    ColorDrawable colorDrawable = (ColorDrawable) itemView.getBackground();
-                    int currentColor = colorDrawable.getColor();
-                    if (currentColor == Color.LTGRAY) { //取消选择
-                        itemView.setBackgroundColor(Color.TRANSPARENT);
-                        selectfolder.remove(data);
-                    } else { //选择
-                        itemView.setBackgroundColor(Color.LTGRAY);
-                        selectfolder.add(data);
+                    // 加载自定义布局
+                    View dialogView = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_main_info, null);
+                    TextView tvFolderName=dialogView.findViewById(R.id.info_folder_name_value);
+                    TextView tvVideoNumber=dialogView.findViewById(R.id.info_video_number_value);
+                    TextView tvSize=dialogView.findViewById(R.id.info_size_value);
+
+                    movielist = provider.getMapList(data);
+                    tvFolderName.setText(data);
+                    tvVideoNumber.setText(String.valueOf(movielist.size()));
+                    long size=0;
+                    for (Video video:movielist) {
+                        size+=video.getSize();
                     }
-                    if (selectfolder.size()==0) {
-                        mainsearchbar.getMenu().clear();
-                        mainsearchbar.inflateMenu(R.menu.searchbar_menu);
-                    } else {
-                        mainsearchbar.getMenu().clear();
-                        mainsearchbar.inflateMenu(R.menu.searchbar_menu_select_folder);
-                    }
+                    tvSize.setText(formatSize(size));
+
+                    new MaterialAlertDialogBuilder(MainActivity.this)
+                            .setTitle("详细信息")
+                            .setView(dialogView)
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            })
+                            .show();
                 }
             });
             //若为水平布局
@@ -538,6 +527,16 @@ public class MainActivity extends AppCompatActivity {
             recyclerView.setAdapter(listMovieAdapter);
         }
     }
+    public void init_data_history() { //历史记录初始化数据
+        ListMovieHistoryAdapter listMovieHistoryAdapter=new ListMovieHistoryAdapter(MainActivity.this, provider);
+        //创建线性布局
+        LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
+        //水平方向
+        manager.setOrientation(LinearLayoutManager.VERTICAL);
+        //给RecyclerView设置布局管理器
+        historyrecyclerView.setLayoutManager(manager);
+        historyrecyclerView.setAdapter(listMovieHistoryAdapter);
+    }
     public List<Video> init_data(String input) {
         List<Video> originallist=provider.getloclist();
         List<Video> currentlist=new ArrayList<>();
@@ -545,6 +544,23 @@ public class MainActivity extends AppCompatActivity {
             if(video.getTitle().contains(input)) currentlist.add(video);
         }
         return currentlist;
+    }
+
+    /**
+     * 格式化占用大小的显示
+     * @param sizeInBytes 字节数
+     * @return 根据数值选择合适的单位
+     */
+    public String formatSize(long sizeInBytes) {
+        if (sizeInBytes < 1024) {
+            return sizeInBytes + " B";
+        } else if (sizeInBytes < 1024 * 1024) {
+            return sizeInBytes / 1024 + " KB";
+        } else if (sizeInBytes < 1024 * 1024 * 1024) {
+            return sizeInBytes / (1024 * 1024) + " MB";
+        } else {
+            return sizeInBytes / (1024 * 1024 * 1024) + " GB";
+        }
     }
 
     /**
@@ -608,11 +624,6 @@ public class MainActivity extends AppCompatActivity {
         } else if(!Objects.equals(folder_path, null)) { //文件夹内未选中
             folder_path=null;
             init_data();
-        } else if (selectfolder.size()!=0) { //文件夹
-            selectfolder.clear();
-            mainsearchbar.getMenu().clear();
-            mainsearchbar.inflateMenu(R.menu.searchbar_menu);
-            folderAdapter.resetSelectedStates(); //重置背景色
         } else {
             super.onBackPressed();
         }
@@ -624,15 +635,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode,Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_CREATE_FILE && resultCode==RESULT_OK) {
+        if (requestCode == REQUEST_CODE_CREATE_FILE) {
             SharedPreferencesBackup.onActivityResult(this, requestCode, resultCode, data);
-        } else if (requestCode == REQUEST_CODE_OPEN_FILE && resultCode==RESULT_OK) {
+            if (resultCode==RESULT_OK) {
+                Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "取消保存", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == REQUEST_CODE_OPEN_FILE) {
             SharedPreferencesBackup.onActivityResult(this, requestCode, resultCode, data);
+            if (resultCode==RESULT_OK) {
+                init_data_history();
+                Toast.makeText(this, "读取成功", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "取消读取", Toast.LENGTH_SHORT).show();
+            }
         } else if (requestCode == DELETE_VIDEO_CODE) {
             if (resultCode==RESULT_OK) { //刷新并清空选中列表
                 provider.Updatelist();
-                init_data();
                 selectvideo.clear();
+                listMovieAdapter.removeSelectedItems(); //更新页面
                 Toast.makeText(this, "成功删除", Toast.LENGTH_SHORT).show();
             }
             else {

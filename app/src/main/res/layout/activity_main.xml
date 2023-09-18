@@ -99,28 +99,6 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <View
-            android:id="@+id/side_sheet_overlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#80000000"
-            android:visibility="gone" />
-
-        <LinearLayout
-            android:id="@+id/standard_side_sheet"
-            style="@style/Widget.Material3.SideSheet"
-            android:layout_width="300dp"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_behavior="com.google.android.material.sidesheet.SideSheetBehavior">
-            <include layout="@layout/slide_sheet_main"/>
-        </LinearLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
     <!-- fab -->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"

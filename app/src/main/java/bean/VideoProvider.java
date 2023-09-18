@@ -40,33 +40,12 @@ public class VideoProvider implements AbstructProvider {
             if (cursor != null) {
                 list = new ArrayList<Video>();
                 while (cursor.moveToNext()) {
-                    int id = cursor.getInt(cursor
-                            .getColumnIndexOrThrow(MediaStore.Video.Media._ID));
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
                     int width = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.WIDTH));
                     int height = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.HEIGHT));
-
-                    String album = cursor
-                            .getString(cursor
-                                    .getColumnIndexOrThrow(MediaStore.Video.Media.ALBUM));
-                    String artist = cursor
-                            .getString(cursor
-                                    .getColumnIndexOrThrow(MediaStore.Video.Media.ARTIST));
-                    String displayName = cursor
-                            .getString(cursor
-                                    .getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME));
-                    String mimeType = cursor
-                            .getString(cursor
-                                    .getColumnIndexOrThrow(MediaStore.Video.Media.MIME_TYPE));
-                    String path = cursor
-                            .getString(cursor
-                                    .getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
+                    String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
                     String uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id).toString();
-                    long duration = cursor
-                            .getLong(cursor
-                                    .getColumnIndexOrThrow(MediaStore.Video.Media.DURATION));
-                    long size = cursor
-                            .getLong(cursor
-                                    .getColumnIndexOrThrow(MediaStore.Video.Media.SIZE));
+                    long size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE));
 
                     // 获取视频文件所在的文件夹名称
                     File videoFile = new File(path);
@@ -79,7 +58,7 @@ public class VideoProvider implements AbstructProvider {
                         title = title.substring(0, dotIndex);
                     }
 
-                    Video video = new Video(id,width,height, title, album, artist, displayName, mimeType, path,uri, size, duration,folderName);
+                    Video video = new Video(id,width,height, title, path, uri, size, folderName);
 
                     list.add(video);
                 }
