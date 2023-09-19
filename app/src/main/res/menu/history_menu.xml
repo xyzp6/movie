@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/history_delete"
+        android:enabled="true"
+        android:icon="@drawable/delete_fill0_wght400_grad0_opsz24"
+        android:title="@string/delete_all"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/history_imports"
         android:enabled="true"
         android:icon="@drawable/download_fill0_wght400_grad0_opsz32"

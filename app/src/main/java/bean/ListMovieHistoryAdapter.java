@@ -3,20 +3,26 @@ package bean;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.xyzp.movie.MainActivity;
 import com.xyzp.movie.PlayerActivity;
 import com.xyzp.movie.R;
 
@@ -62,21 +68,68 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         //创建ViewHolder，返回每一项的布局
-            inflater = LayoutInflater.from(context).inflate(R.layout.item_list_movie_history,parent,false);
-            MyViewHolder myViewHolder = new MyViewHolder(inflater);
-            myViewHolder.relativeLayout.setOnClickListener(new View.OnClickListener() { //点击事件
-                @Override
-                public void onClick(View v) {
-                    int position = myViewHolder.getBindingAdapterPosition();
-                    int id=Integer.parseInt(idlist.get(position));
-                    //传递
-                    Intent intent = new Intent(context, PlayerActivity.class);
-                    intent.putExtra("movie_id",id);
-                    intent.putExtra("movie_path",videoProvider.getPathFromId(id));
-                    context.startActivity(intent);
-                }
-            });
-            return myViewHolder;
+        inflater = LayoutInflater.from(context).inflate(R.layout.item_list_movie_history,parent,false);
+        MyViewHolder myViewHolder = new MyViewHolder(inflater);
+        myViewHolder.relativeLayout.setOnClickListener(new View.OnClickListener() { //点击事件
+            @Override
+            public void onClick(View v) {
+                int position = myViewHolder.getBindingAdapterPosition();
+                int id=Integer.parseInt(idlist.get(position));
+                //传递
+                Intent intent = new Intent(context, PlayerActivity.class);
+                intent.putExtra("movie_id",id);
+                intent.putExtra("movie_path",videoProvider.getPathFromId(id));
+                context.startActivity(intent);
+            }
+        });
+        myViewHolder.relativeLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                int position = myViewHolder.getBindingAdapterPosition();
+                int id=Integer.parseInt(idlist.get(position));
+                // 加载自定义布局
+                View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_history_info, null);
+                TextView tvNowTime=dialogView.findViewById(R.id.info_now_time_value);
+                TextView tvTotalTime=dialogView.findViewById(R.id.info_total_time_value);
+                tvNowTime.setText(formatTime(timelist.get(position)));
+                tvTotalTime.setText(formatTime(videoProvider.getDurationFromId(id)));
+
+                AlertDialog dialog = new MaterialAlertDialogBuilder(context)
+                        .setTitle(titlelist.get(position))
+                        .setView(dialogView)
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .setNegativeButton("删除", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                SharedPreferences sharedPreferences = context.getSharedPreferences("Playing", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.remove(String.valueOf(id));
+                                editor.apply();
+                                idlist.remove(position);
+                                timelist.remove(position);
+                                titlelist.remove(position);
+                                notifyItemRemoved(position);
+                            }
+                        })
+                        .create();
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialogInterface) {
+                        Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+                        // 设置按钮的字体颜色
+                        button.setTextColor(Color.RED);  // 将颜色更改为红色
+                    }
+                });
+                dialog.show();
+                return false;
+            }
+        });
+        return myViewHolder;
     }
     //onBindViewHolder()方法用于对RecyclerView子项数据进行赋值，会在每个子项被滚动到屏幕内的时候执行
     //这里我们通过position参数的得到当前项的实例，然后将数据设置到ViewHolder的TextView即可
@@ -113,6 +166,17 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
     public int getItemCount() {
         //返回Item总条数
         return idlist.size();
+    }
+
+    public void removeAllItems() { //清空item
+        SharedPreferences sharedPreferences = context.getSharedPreferences("Playing", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+        idlist.clear();
+        timelist.clear();
+        titlelist.clear();
+        notifyDataSetChanged();
     }
 
     //内部类，绑定控件

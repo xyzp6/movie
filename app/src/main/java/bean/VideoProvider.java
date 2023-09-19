@@ -101,6 +101,24 @@ public class VideoProvider implements AbstructProvider {
     }
 
     /**
+     * 根据id获得视频时长
+     */
+    public long getDurationFromId(int id) {
+        long duration = 0;
+        String[] projection = {MediaStore.Video.Media._ID, MediaStore.Video.Media.DURATION};
+        String selection = MediaStore.Video.Media._ID + "=?";
+        String[] selectionArgs = {String.valueOf(id)};
+        Cursor cursor = context.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION);
+            duration = cursor.getInt(durationColumn);
+            cursor.close();
+        }
+        return duration;
+    }
+
+
+    /**
      * 对应文件夹的视频
      */
     public List<Video> getMapList(String folder) {

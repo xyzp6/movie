@@ -16,7 +16,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 
@@ -33,7 +35,9 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -103,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     private VideoProvider provider;
     private FolderAdapter folderAdapter;
     private ListMovieAdapter listMovieAdapter;
+    private ListMovieHistoryAdapter listMovieHistoryAdapter;
     private boolean list_horizontal_layout,searchstatus; //布局方式，默认水平;搜索状态，false为未在布局中
 
     @Override
@@ -296,10 +301,33 @@ public class MainActivity extends AppCompatActivity {
         //历史记录按钮监听
         historymaterialToolbar.setOnMenuItemClickListener(
             menuItem -> {
-                if (menuItem.getItemId() == R.id.history_imports) {
+                if (menuItem.getItemId() == R.id.history_imports) { //导入
                     SharedPreferencesBackup.restoreSharedPreferences(this);
-                } else if (menuItem.getItemId() == R.id.history_exports) {
+                } else if (menuItem.getItemId() == R.id.history_exports) { //导出
                     SharedPreferencesBackup.backupSharedPreferences(this, "Playing");
+                } else if (menuItem.getItemId() == R.id.history_delete) { //删除
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle("确认全部删除")
+                            .setMessage("警告！此操作会清空所有历史记录且不可以逆！（不影响本地备份）")
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    listMovieHistoryAdapter.removeAllItems();
+                                }
+                            })
+                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            })
+                            .setNeutralButton("备份", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    SharedPreferencesBackup.backupSharedPreferences(MainActivity.this, "Playing");
+                                }
+                            })
+                            .show();
                 }
                 return true;
             });
@@ -528,7 +556,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void init_data_history() { //历史记录初始化数据
-        ListMovieHistoryAdapter listMovieHistoryAdapter=new ListMovieHistoryAdapter(MainActivity.this, provider);
+        listMovieHistoryAdapter=new ListMovieHistoryAdapter(MainActivity.this, provider);
         //创建线性布局
         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
         //水平方向
