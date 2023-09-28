@@ -37,6 +37,7 @@
     <string name="total_settings">整体设置</string>
     <string name="total_tip">温馨提醒</string>
     <string name="total_tip_time">开屏时间问候语</string>
+    <string name="total_tip_brightness">视频播放亮度提醒</string>
     <string name="total_theme">选择一个喜欢的模式吧！</string>
     <string name="total_auto">跟随系统</string>
     <string name="total_bright">亮色</string>
@@ -47,7 +48,7 @@
     <string name="picture_main_button_default">恢复默认</string>
     <string name="about">关于</string>
     <string name="thanks">感谢您的使用！</string>
-    <string name="open_source_address">开源地址</string>
+    <string name="github">github</string>
     <string name="version_text">当前版本：%1$s</string>
 
     <string name="title_activity_settings">SettingsActivity</string>

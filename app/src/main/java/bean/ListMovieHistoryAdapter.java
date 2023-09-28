@@ -150,7 +150,6 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
                         MediaStore.Video.Thumbnails.MINI_KIND,
                         null);
 
-
                 // 在主线程中更新 ImageView
                 holder.imageView.post(new Runnable() {
                     @Override

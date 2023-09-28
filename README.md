@@ -1,6 +1,6 @@
 # 本地视频
 
-这是一个基于谷歌[Media3](https://developer.android.google.cn/guide/topics/media/media3)开发的开源本地视频播放软件，使用[Material Design 3](https://m3.material.io/)设计规范，意在实现轻量，美观，实用。
+这是一个基于谷歌[Media3](https://developer.android.google.cn/guide/topics/media/media3)开发的本地视频播放软件，使用[Material Design 3](https://m3.material.io/)设计规范，意在实现轻量，美观，实用。
 
 ## 图片
 

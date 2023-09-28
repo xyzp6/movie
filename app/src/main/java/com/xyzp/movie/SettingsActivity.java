@@ -248,11 +248,11 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        //开源代码链接
+        //github链接
         opaddbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = "https://github.com/xyzp6/movie";
+                String url = "https://github.com/xyzp6/local_movie";
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(url));
                 startActivity(intent);
