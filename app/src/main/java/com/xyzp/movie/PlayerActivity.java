@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.AudioManager;
+import android.media.session.MediaSession;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -101,7 +102,7 @@ public class PlayerActivity extends Activity {
         movieid = intent.getIntExtra("movie_id",0);
         videoList= (List<Video>) intent.getSerializableExtra("movie_video_list");
         prepare(position,url,moviepath);
-
+        
         if(playSituation) { //回后台前正在播放，第一次播放
             player.play();
             playButton.setImageResource(R.drawable.pause_fill1_wght400_grad0_opsz48);
@@ -525,13 +526,6 @@ public class PlayerActivity extends Activity {
      * 初始化
      */
     public void init() {
-        //强制120帧，设置内开120帧有效
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
-            layoutParams.preferredRefreshRate = 120.0f;
-            getWindow().setAttributes(layoutParams);
-        }
-
         SharedPreferences spSet = getSharedPreferences("Settings", MODE_PRIVATE);
         tip=spSet.getBoolean("tip",true);
 

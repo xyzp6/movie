@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearProgressIndicator mainsearchlinearprogress;
     private FloatingActionButton fabonline;
     private List<Video> searchlist,movielist,selectvideo=new ArrayList<>();
-    private ActivityResultLauncher<String> requestReadPermissionLauncher,requestWritePermissionLauncher;
+    private ActivityResultLauncher<String> requestReadPermissionLauncher;
     private RecyclerView recyclerView,searchrecyclerView,historyrecyclerView;
     private RelativeLayout history,searchRelativeLayout;
     private NavigationRailView navigationRailView;
@@ -138,6 +138,13 @@ public class MainActivity extends AppCompatActivity {
             setItemSelectedListener(bottomNavigationView);
         }
 
+        //获取传递的值
+        Intent intent = getIntent();
+        folder_path = intent.getStringExtra("folder_path");
+        if (savedInstanceState != null) {
+            folder_path = savedInstanceState.getString("folder_path");
+        }
+
         //权限申请回报
         requestReadPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
@@ -146,12 +153,6 @@ public class MainActivity extends AppCompatActivity {
                         if (granted) { //用户同意，此处为每次activity启动时的绘制
                             //视频数据初始化，防止多次运行造成性能浪费
                             provider = new VideoProvider(MainActivity.this);
-                            //获取传递的值
-                            Intent intent = getIntent();
-                            folder_path = intent.getStringExtra("folder_path");
-                            if (savedInstanceState != null) {
-                                folder_path = savedInstanceState.getString("folder_path");
-                            }
 
                             //存入数据
                             init_data();
@@ -160,8 +161,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-        ReadPermission();
         init();
+        ReadPermission();
 
         //设置主页背景
         try {
@@ -207,8 +208,8 @@ public class MainActivity extends AppCompatActivity {
         mainsearchbar.setOnMenuItemClickListener(
                 menuItem -> {
                     if (menuItem.getItemId() == R.id.searchbar_menu_settings) {
-                        Intent intent = new Intent(this, SettingsActivity.class);
-                        startActivity(intent);
+                        Intent intentSet = new Intent(this, SettingsActivity.class);
+                        startActivity(intentSet);
                     } else if (menuItem.getItemId()==R.id.searchbar_menu_layout) {
                         // 加载自定义布局
                         View dialogView = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_main_layout, null);
@@ -242,12 +243,12 @@ public class MainActivity extends AppCompatActivity {
                         for (Video video:selectvideo) {
                             uris.add(Uri.parse(video.getUri()));
                         }
-                        PendingIntent intent = null;
+                        PendingIntent pendingIntent = null;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            intent = MediaStore.createDeleteRequest(getContentResolver(), uris);
+                            pendingIntent = MediaStore.createDeleteRequest(getContentResolver(), uris);
                         }
                         try {
-                            startIntentSenderForResult(intent.getIntentSender(),DELETE_VIDEO_CODE,null,0,0,0);
+                            startIntentSenderForResult(pendingIntent.getIntentSender(),DELETE_VIDEO_CODE,null,0,0,0);
                         } catch (IntentSender.SendIntentException e) {
                             throw new RuntimeException(e);
                         }
@@ -622,6 +623,12 @@ public class MainActivity extends AppCompatActivity {
         } else { //安卓7.0
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestReadPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+            } else {
+                //视频数据初始化，防止多次运行造成性能浪费
+                provider = new VideoProvider(MainActivity.this);
+
+                //存入数据
+                init_data();
             }
         }
     }
