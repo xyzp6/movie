@@ -50,6 +50,7 @@ import java.util.Set;
 
 import bean.LightSensorUtils;
 import bean.Video;
+import bean.VideoDatabaseHelper;
 
 
 public class PlayerActivity extends Activity {
@@ -67,6 +68,7 @@ public class PlayerActivity extends Activity {
     private SlideDialog slideDialog;
     private List<Video> videoList;
     private DefaultTrackSelector trackSelector;
+    private VideoDatabaseHelper videoDatabaseHelper;
     private boolean controllersVisible = true, tip = true, reminder= false, playSituation=true; //组件可视，提示，进度提醒，播放情况
     private int movieid=0,checkedItem = 2; // 倍速,默认选中 1x
     //服务于页面滑动
@@ -145,9 +147,7 @@ public class PlayerActivity extends Activity {
                 long previousPosition = oldPosition.positionMs;
                 //保存当前进度
                 if (url==null&&moviepath==null) {
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putLong(String.valueOf(videoList.get(oldPosition.mediaItemIndex).getId()),previousPosition);
-                    editor.apply();
+                    videoDatabaseHelper.InsertVideo(videoList.get(oldPosition.mediaItemIndex).getId(),player.getCurrentPosition());
                 }
             }
             //当一个视频切换到另一个视频时触发
@@ -157,8 +157,8 @@ public class PlayerActivity extends Activity {
                 updatetotalTime();
 
                 //跳转进度
-                long currentposition=sharedPreferences.getLong(String.valueOf(videoList.get(player.getCurrentMediaItemIndex()).getId()),0);
-                if(currentposition!=0) {
+                long currentposition=videoDatabaseHelper.getProgress(videoList.get(player.getCurrentMediaItemIndex()).getId());
+                if(currentposition!=-1) {
                     player.seekTo(currentposition);
                     final View viewPos = findViewById(R.id.snack_location);
                     Snackbar.make(viewPos, "从头开始", Snackbar.LENGTH_LONG).setAction("确认", new View.OnClickListener() {
@@ -407,8 +407,8 @@ public class PlayerActivity extends Activity {
         }
 
         //跳转进度
-        long currentposition=sharedPreferences.getLong(String.valueOf(movieid),0);
-        if(currentposition!=0) {
+        long currentposition=videoDatabaseHelper.getProgress(movieid);
+        if(currentposition!=-1) {
             player.seekTo(position,currentposition);
             if (!reminder) { //此处第一次调用reminder
                 final View viewPos = findViewById(R.id.snack_location);
@@ -543,7 +543,8 @@ public class PlayerActivity extends Activity {
         topController=findViewById(R.id.top_controller);
         bottomController=findViewById(R.id.buttom_controller);
         slideDialog=new SlideDialog(this);
-        sharedPreferences = getSharedPreferences("Playing", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
+        videoDatabaseHelper=new VideoDatabaseHelper(this);
     }
 
     @Override
@@ -559,12 +560,12 @@ public class PlayerActivity extends Activity {
     public void onPause() {
         super.onPause();
         if(tip) lightSensorUtils.unregisterLight();
-        if(url==null) {
+        if(url==null) { //保存进度
             SharedPreferences.Editor editor = sharedPreferences.edit();
             if(moviepath!=null) {
-                editor.putLong(String.valueOf(movieid),player.getCurrentPosition()); //保存当前进度
+                videoDatabaseHelper.InsertVideo(movieid,player.getCurrentPosition());
             } else {
-                editor.putLong(String.valueOf(videoList.get(player.getCurrentMediaItemIndex()).getId()),player.getCurrentPosition()); //保存当前进度
+                videoDatabaseHelper.InsertVideo(videoList.get(player.getCurrentMediaItemIndex()).getId(),player.getCurrentPosition());
             }
             if (player.isPlaying()) {
                 editor.putBoolean("play_situation", true);

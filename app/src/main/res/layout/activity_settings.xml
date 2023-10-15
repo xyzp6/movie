@@ -203,6 +203,76 @@
                 </com.google.android.flexbox.FlexboxLayout>
             </RelativeLayout>
 
+            <!-- 首页历史 -->
+            <RelativeLayout
+                android:id="@+id/settings_main_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_below="@+id/settings_main"
+                android:background="@drawable/rounded_corners" >
+
+                <RelativeLayout
+                    android:id="@+id/settings_main_history_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp" >
+                    <ImageView
+                        android:id="@+id/settings_main_history_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:src="@drawable/home_fill1_wght400_grad0_opsz32"
+                        android:layout_centerVertical="true" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/main_settings_history"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:layout_marginStart="10dp"
+                        android:layout_toEndOf="@+id/settings_main_history_iv"
+                        android:layout_centerVertical="true" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@+id/settings_main_history_top"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp" >
+                    <RelativeLayout
+                        android:id="@+id/settings_main_history_num"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true">
+                        <TextView
+                            android:id="@+id/settings_main_history_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:text="@string/num_main_settings_history"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/settings_main_history_tv"
+                            android:text="@string/num_main_settings_history_tip"/>
+                    </RelativeLayout>
+
+                    <NumberPicker
+                        android:id="@+id/settings_main_history_number_picker"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_toEndOf="@id/settings_main_history_num"/>
+
+                </RelativeLayout>
+            </RelativeLayout>
+
             <!-- 关于 -->
             <RelativeLayout
                 android:id="@+id/settings_about"
@@ -212,7 +282,7 @@
                 android:layout_marginEnd="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:layout_below="@+id/settings_main"
+                android:layout_below="@+id/settings_main_history"
                 android:background="@drawable/rounded_corners" >
 
                 <RelativeLayout
@@ -252,17 +322,30 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/settings_about_thank"
                     android:layout_marginStart="10dp" />
-                <Button
-                    style="@style/Widget.Material3.Button"
-                    android:id="@+id/settings_about_openaddress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_below="@+id/settings_about_version"
                     android:layout_marginStart="10dp"
                     android:layout_marginBottom="20dp"
-                    android:layout_marginTop="20dp"
-                    app:icon="@drawable/link_fill0_wght400_grad0_opsz32"
-                    android:text="@string/github" />
+                    android:layout_marginTop="20dp">
+                    <Button
+                        style="@style/Widget.Material3.Button"
+                        android:id="@+id/settings_about_github"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/link_fill0_wght400_grad0_opsz32"
+                        android:text="@string/github" />
+                    <Button
+                        style="@style/Widget.Material3.Button"
+                        android:id="@+id/settings_about_lanzouyun"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@+id/settings_about_github"
+                        android:layout_marginStart="20dp"
+                        app:icon="@drawable/link_fill0_wght400_grad0_opsz32"
+                        android:text="@string/lanzouyun" />
+                </RelativeLayout>
             </RelativeLayout>
 
             <View

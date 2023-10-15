@@ -37,31 +37,29 @@ import java.util.Objects;
 public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHistoryAdapter.MyViewHolder>{
     private final Context context;
     private final VideoProvider videoProvider;
-    private final List<String> idlist=new ArrayList<>();
+    private final VideoDatabaseHelper dbHelper;
+    private final List<Integer> idlist=new ArrayList<>();
     private final List<Long> timelist=new ArrayList<>();
     private final List<String> titlelist=new ArrayList<>();
+    private List<VideoHistory> videoHistories;
     private View inflater;
     //构造方法，传入数据,即把展示的数据源传进来，并且复制给一个全局变量，以后的操作都在该数据源上进行
-    public ListMovieHistoryAdapter(Context context,VideoProvider videoProvider){
+    public ListMovieHistoryAdapter(Context context, VideoProvider videoProvider,int cnt){ //-1指无限制
         this.context = context;
         this.videoProvider=videoProvider;
-        SharedPreferences sharedPreferences = context.getSharedPreferences("Playing", MODE_PRIVATE);
-        Map<String, ?> allEntries = sharedPreferences.getAll();
-        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            if (entry.getValue() instanceof Long) {
-                String key = entry.getKey();
-                long value = (Long) entry.getValue();
-                if(value!=0) {
-                    String title=videoProvider.getNameFromId(Integer.parseInt(key));
-                    if (!Objects.equals(title, "")) {
-                        idlist.add(key);
-                        timelist.add(value);
-                        titlelist.add(title);
-                    }
-                }
-            }
+        dbHelper = new VideoDatabaseHelper(context);
+        if(cnt==-1) {
+            videoHistories = dbHelper.getVideoHistories();
+        } else {
+            videoHistories = dbHelper.getVideoLastHistories(cnt);
+        }
+        for (VideoHistory videoHistory : videoHistories) {
+            idlist.add(videoHistory.getVideoId());
+            timelist.add(videoHistory.getProgress());
+            titlelist.add(videoHistory.getTitle());
         }
     }
+
     //由于RecycleAdapterDome继承自RecyclerView.Adapter,则必须重写onCreateViewHolder()，onBindViewHolder()，getItemCount()
     //onCreateViewHolder()方法用于创建ViewHolder实例，我们在这个方法将item_list_movie.xml布局加载进来
     //然后创建一个ViewHolder实例，并把加载出来的布局传入到构造函数，最后将实例返回
@@ -74,7 +72,7 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
             @Override
             public void onClick(View v) {
                 int position = myViewHolder.getBindingAdapterPosition();
-                int id=Integer.parseInt(idlist.get(position));
+                int id=idlist.get(position);
                 //传递
                 Intent intent = new Intent(context, PlayerActivity.class);
                 intent.putExtra("movie_id",id);
@@ -86,7 +84,7 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
             @Override
             public boolean onLongClick(View v) {
                 int position = myViewHolder.getBindingAdapterPosition();
-                int id=Integer.parseInt(idlist.get(position));
+                int id=idlist.get(position);
                 // 加载自定义布局
                 View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_history_info, null);
                 TextView tvNowTime=dialogView.findViewById(R.id.info_now_time_value);
@@ -106,10 +104,7 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
                         .setNegativeButton("删除", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                SharedPreferences sharedPreferences = context.getSharedPreferences("Playing", MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.remove(String.valueOf(id));
-                                editor.apply();
+                                dbHelper.DeleteVideo(id);
                                 idlist.remove(position);
                                 timelist.remove(position);
                                 titlelist.remove(position);
@@ -136,7 +131,7 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         //将数据和控件绑定
-        int id=Integer.parseInt(idlist.get(position));
+        int id=idlist.get(position);
         holder.nametextView.setText(titlelist.get(position));
         holder.timetextView.setText(formatTime(timelist.get(position)));
 
@@ -168,10 +163,7 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
     }
 
     public void removeAllItems() { //清空item
-        SharedPreferences sharedPreferences = context.getSharedPreferences("Playing", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();
-        editor.apply();
+        dbHelper.deleteDatabaseFile();
         idlist.clear();
         timelist.clear();
         titlelist.clear();

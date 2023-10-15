@@ -94,6 +94,18 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/main_history_top_bar" />
 
+                <Button
+                    style="@style/Widget.Material3.Button"
+                    android:id="@+id/main_history_all"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_below="@+id/main_history_list"
+                    android:layout_centerHorizontal="true"
+                    android:text="@string/view_all"
+                    />
+
             </RelativeLayout>
 
             <!-- fab -->

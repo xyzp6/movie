@@ -5,6 +5,7 @@
     <string name="delete_all">全部删除</string>
     <string name="imports">导入</string>
     <string name="exports">导出</string>
+    <string name="view_all">查看全部</string>
     <string name="now_time">当前时长</string>
     <string name="total_time">总时长</string>
     <string name="info">详情</string>
@@ -46,9 +47,13 @@
     <string name="picture_main">为您的主页选一张好看的图片吧！</string>
     <string name="picture_main_button">点我选择</string>
     <string name="picture_main_button_default">恢复默认</string>
+    <string name="main_settings_history">主页历史页设置</string>
+    <string name="num_main_settings_history">展示记录数量</string>
+    <string name="num_main_settings_history_tip">(切换后立即生效)</string>
     <string name="about">关于</string>
     <string name="thanks">感谢您的使用！</string>
     <string name="github">github</string>
+    <string name="lanzouyun">蓝奏云</string>
     <string name="version_text">当前版本：%1$s</string>
 
     <string name="title_activity_settings">SettingsActivity</string>
@@ -57,5 +62,6 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="title_activity_history">HistoryActivity</string>
 
 </resources>

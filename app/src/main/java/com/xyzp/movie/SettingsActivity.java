@@ -1,5 +1,7 @@
 package com.xyzp.movie;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,10 +17,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -46,8 +50,11 @@ public class SettingsActivity extends AppCompatActivity {
     private RadioButton autoradioButton,brightradioButton,darkradioButton;
     private TextView versiontextView;
     private ImageView tipimageView;
-    private Button opaddbutton,mainpicchoicebutton,mainpicdefaultbutton;
+    private Button opaddbutton,lzybutton,mainpicchoicebutton,mainpicdefaultbutton;
     private MaterialSwitch tipswitch;
+    private NumberPicker historynp;
+    private final String[] historyitems = {"3", "5", "7"};
+    private final int[] historynumitems = {3, 5, 7};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -248,11 +255,48 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+        //主页历史页设置
+        // 设置 NumberPicker 的取值范围和初始值
+        historynp.setMinValue(1);
+        historynp.setMaxValue(historyitems.length);
+        historynp.setValue(sharedPreferences.getInt("historynum",1));
+
+        // 设置 NumberPicker 的显示内容
+        historynp.setDisplayedValues(historyitems);
+
+        // 设置 NumberPicker 的滚动监听器
+        historynp.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                // 处理选项的滚动事件
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putInt("historynum", newVal);
+                editor.apply();
+
+            }
+        });
+
         //github链接
         opaddbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String url = "https://github.com/xyzp6/local_movie";
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
+            }
+        });
+        //蓝奏云链接
+        lzybutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //创建一个新的文本clip对象
+                ClipData mClipData = ClipData.newPlainText("lyz","bbw4");
+                //把clip对象放在剪贴板中
+                ClipboardManager mClipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                mClipboardManager.setPrimaryClip(mClipData);
+                Toast.makeText(getApplicationContext(), "密码已复制", Toast.LENGTH_SHORT).show();
+                String url = "https://wwyq.lanzouy.com/b048pmqef";
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(url));
                 startActivity(intent);
@@ -274,7 +318,8 @@ public class SettingsActivity extends AppCompatActivity {
     public void init() {
         materialToolbar=findViewById(R.id.settings_top_MaterialToolbarr);
         versiontextView=findViewById(R.id.settings_about_version);
-        opaddbutton=findViewById(R.id.settings_about_openaddress);
+        opaddbutton=findViewById(R.id.settings_about_github);
+        lzybutton=findViewById(R.id.settings_about_lanzouyun);
         mainpicchoicebutton=findViewById(R.id.settings_main_selpictures);
         mainpicdefaultbutton=findViewById(R.id.settings_main_defaultpictures);
         themeradioGroup=findViewById(R.id.settings_total_theme);
@@ -283,6 +328,7 @@ public class SettingsActivity extends AppCompatActivity {
         darkradioButton=findViewById(R.id.settings_total_theme_dark);
         tipswitch=findViewById(R.id.settings_total_tip_switch);
         tipimageView=findViewById(R.id.settings_total_tip_info);
+        historynp=findViewById(R.id.settings_main_history_number_picker);
 
         sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
     }

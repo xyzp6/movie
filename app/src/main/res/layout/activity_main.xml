@@ -95,6 +95,16 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/main_history_top_bar" />
 
+            <Button
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                android:id="@+id/main_history_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/main_history_list"
+                android:layout_centerHorizontal="true"
+                android:text="@string/view_all"
+                />
+
         </RelativeLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

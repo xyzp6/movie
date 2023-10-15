@@ -1,31 +1,24 @@
 package com.xyzp.movie;
 
 
-import static bean.SharedPreferencesBackup.REQUEST_CODE_CREATE_FILE;
-import static bean.SharedPreferencesBackup.REQUEST_CODE_OPEN_FILE;
+import static bean.DatabaseBackup.REQUEST_CODE_CREATE_FILE;
+import static bean.DatabaseBackup.REQUEST_CODE_OPEN_FILE;
 import static bean.Tip.showGreeting;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -35,26 +28,22 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.Settings;
-import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -73,8 +62,6 @@ import com.google.android.material.search.SearchView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -84,7 +71,7 @@ import java.util.Objects;
 import bean.FolderAdapter;
 import bean.ListMovieAdapter;
 import bean.ListMovieHistoryAdapter;
-import bean.SharedPreferencesBackup;
+import bean.DatabaseBackup;
 import bean.StatusBar;
 import bean.Video;
 import bean.VideoProvider;
@@ -94,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView mainbg;
     private SearchView mainsearchview;
     private SearchBar mainsearchbar;
+    private Button historyallbt;
     private LinearProgressIndicator mainsearchlinearprogress;
     private FloatingActionButton fabonline;
     private List<Video> searchlist,movielist,selectvideo=new ArrayList<>();
@@ -105,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
     private MaterialToolbar historymaterialToolbar;
     private String folder_path;
     private VideoProvider provider;
+    private SharedPreferences sharedPreferences;
     private FolderAdapter folderAdapter;
     private ListMovieAdapter listMovieAdapter;
     private ListMovieHistoryAdapter listMovieHistoryAdapter;
@@ -139,8 +128,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //获取传递的值
-        Intent intent = getIntent();
-        folder_path = intent.getStringExtra("folder_path");
+        Intent intentfp = getIntent();
+        folder_path = intentfp.getStringExtra("folder_path");
         if (savedInstanceState != null) {
             folder_path = savedInstanceState.getString("folder_path");
         }
@@ -183,7 +172,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         //设置提示
-        SharedPreferences sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
         if (sharedPreferences.getBoolean("tip",true)) {
             GlobalApplication application = (GlobalApplication) getApplication();
             if (!application.hasShownGreeting) {
@@ -208,8 +196,8 @@ public class MainActivity extends AppCompatActivity {
         mainsearchbar.setOnMenuItemClickListener(
                 menuItem -> {
                     if (menuItem.getItemId() == R.id.searchbar_menu_settings) {
-                        Intent intentSet = new Intent(this, SettingsActivity.class);
-                        startActivity(intentSet);
+                        Intent intent = new Intent(this, SettingsActivity.class);
+                        startActivity(intent);
                     } else if (menuItem.getItemId()==R.id.searchbar_menu_layout) {
                         // 加载自定义布局
                         View dialogView = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_main_layout, null);
@@ -225,7 +213,6 @@ public class MainActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         list_horizontal_layout= tabLayout.getSelectedTabPosition() == 1;
                                         init_data();
-                                        SharedPreferences sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
                                         SharedPreferences.Editor editor = sharedPreferences.edit();
                                         editor.putBoolean("list_horizontal_layout", list_horizontal_layout);
                                         editor.apply();
@@ -303,9 +290,9 @@ public class MainActivity extends AppCompatActivity {
         historymaterialToolbar.setOnMenuItemClickListener(
             menuItem -> {
                 if (menuItem.getItemId() == R.id.history_imports) { //导入
-                    SharedPreferencesBackup.restoreSharedPreferences(this);
+                    DatabaseBackup.restore(this);
                 } else if (menuItem.getItemId() == R.id.history_exports) { //导出
-                    SharedPreferencesBackup.backupSharedPreferences(this, "Playing");
+                    DatabaseBackup.backup(this);
                 } else if (menuItem.getItemId() == R.id.history_delete) { //删除
                     new MaterialAlertDialogBuilder(this)
                             .setTitle("确认全部删除")
@@ -314,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     listMovieHistoryAdapter.removeAllItems();
+                                    historyallbt.setVisibility(View.GONE);
                                 }
                             })
                             .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -325,13 +313,22 @@ public class MainActivity extends AppCompatActivity {
                             .setNeutralButton("备份", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    SharedPreferencesBackup.backupSharedPreferences(MainActivity.this, "Playing");
+                                    DatabaseBackup.backup(MainActivity.this);
                                 }
                             })
                             .show();
                 }
                 return true;
             });
+
+        //历史记录查看更多
+        historyallbt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(MainActivity.this,HistoryActivity.class);
+                startActivity(intent);
+            }
+        });
 
         //在线播放fab的监听事件
         fabonline.setOnClickListener(new View.OnClickListener() {
@@ -557,7 +554,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void init_data_history() { //历史记录初始化数据
-        listMovieHistoryAdapter=new ListMovieHistoryAdapter(MainActivity.this, provider);
+        listMovieHistoryAdapter=new ListMovieHistoryAdapter(MainActivity.this, provider,2*sharedPreferences.getInt("historynum",1)+1);
         //创建线性布局
         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
         //水平方向
@@ -565,6 +562,9 @@ public class MainActivity extends AppCompatActivity {
         //给RecyclerView设置布局管理器
         historyrecyclerView.setLayoutManager(manager);
         historyrecyclerView.setAdapter(listMovieHistoryAdapter);
+
+        if (listMovieHistoryAdapter.getItemCount()==0) historyallbt.setVisibility(View.GONE);
+        else historyallbt.setVisibility(View.VISIBLE);
     }
     public List<Video> init_data(String input) {
         List<Video> originallist=provider.getloclist();
@@ -596,9 +596,6 @@ public class MainActivity extends AppCompatActivity {
      * 初始化
      */
     public void init() {
-        SharedPreferences sharedPreferences = getSharedPreferences("Settings",MODE_PRIVATE);
-        list_horizontal_layout = sharedPreferences.getBoolean("list_horizontal_layout", true);
-
         mainbg=findViewById(R.id.main_background);
         recyclerView=findViewById(R.id.recyclerview);
         historyrecyclerView=findViewById(R.id.main_history_list);
@@ -610,6 +607,10 @@ public class MainActivity extends AppCompatActivity {
         mainsearchlinearprogress=findViewById(R.id.search_LinearProgressIndicator);
         searchRelativeLayout=findViewById(R.id.search_RelativeLayout);
         fabonline=findViewById(R.id.floating_action_button_online);
+        historyallbt=findViewById(R.id.main_history_all);
+
+        sharedPreferences = getSharedPreferences("Settings",MODE_PRIVATE);
+        list_horizontal_layout = sharedPreferences.getBoolean("list_horizontal_layout", true);
     }
 
     /**
@@ -671,14 +672,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode,Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_CREATE_FILE) {
-            SharedPreferencesBackup.onActivityResult(this, requestCode, resultCode, data);
+            DatabaseBackup.onActivityResult(this, requestCode, resultCode, data);
             if (resultCode==RESULT_OK) {
                 Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "取消保存", Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == REQUEST_CODE_OPEN_FILE) {
-            SharedPreferencesBackup.onActivityResult(this, requestCode, resultCode, data);
+            DatabaseBackup.onActivityResult(this, requestCode, resultCode, data);
             if (resultCode==RESULT_OK) {
                 init_data_history();
                 Toast.makeText(this, "读取成功", Toast.LENGTH_SHORT).show();
