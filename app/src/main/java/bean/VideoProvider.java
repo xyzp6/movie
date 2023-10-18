@@ -46,6 +46,7 @@ public class VideoProvider implements AbstructProvider {
                     String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
                     String uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id).toString();
                     long size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE));
+                    long duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION));
 
                     // 获取视频文件所在的文件夹名称
                     File videoFile = new File(path);
@@ -58,7 +59,7 @@ public class VideoProvider implements AbstructProvider {
                         title = title.substring(0, dotIndex);
                     }
 
-                    Video video = new Video(id,width,height, title, path, uri, size, folderName);
+                    Video video = new Video(id,width,height, title, path, uri, size,duration, folderName);
 
                     list.add(video);
                 }
@@ -66,6 +67,16 @@ public class VideoProvider implements AbstructProvider {
             }
         }
         return list;
+    }
+
+    /**
+     * 根据id获得文件夹名
+     */
+    public String getFolderNameFromId(int id) {
+        String path=getPathFromId(id);
+        File videoFile = new File(path);
+        File parentFolder = videoFile.getParentFile();
+        return parentFolder.getName();
     }
 
     /**
@@ -135,6 +146,20 @@ public class VideoProvider implements AbstructProvider {
             }
         });
         return newlist;
+    }
+
+    /**
+     * 视频在文件夹中的位置
+     */
+    public int getPosition(List<Video> list,int id) {
+        int position=0;
+        for (Video video : list) {
+            if(video.getId()==id) {
+                break;
+            }
+            position++;
+        }
+        return position;
     }
 
     /**

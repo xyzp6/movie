@@ -46,8 +46,8 @@ import bean.StatusBar;
 public class SettingsActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private MaterialToolbar materialToolbar;
-    private RadioGroup themeradioGroup;
-    private RadioButton autoradioButton,brightradioButton,darkradioButton;
+    private RadioGroup themeradioGroup,orientationadioGroup;
+    private RadioButton autoradioButton,brightradioButton,darkradioButton,oautoradioButton,verticalradioButton,horizontalradioButton;
     private TextView versiontextView;
     private ImageView tipimageView;
     private Button opaddbutton,lzybutton,mainpicchoicebutton,mainpicdefaultbutton;
@@ -189,7 +189,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                                 new MaterialAlertDialogBuilder(SettingsActivity.this)
                                         .setTitle("重启应用生效")
-                                        .setMessage("迎接更美好的下一次启动")
+                                        .setMessage("此操作需要重启应用")
                                         .setPositiveButton("立即重启", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
@@ -235,7 +235,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                 new MaterialAlertDialogBuilder(SettingsActivity.this)
                         .setTitle("重启应用生效")
-                        .setMessage("迎接更美好的下一次启动")
+                        .setMessage("此操作需要重启应用")
                         .setPositiveButton("立即重启", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -273,6 +273,101 @@ public class SettingsActivity extends AppCompatActivity {
                 editor.putInt("historynum", newVal);
                 editor.apply();
 
+            }
+        });
+
+        //播放页
+        String orientation=sharedPreferences.getString("orientation","auto");
+        switch (orientation) {
+            case "auto":
+                orientationadioGroup.check(R.id.settings_play_page_orientation_auto);
+                break;
+            case "vertical":
+                orientationadioGroup.check(R.id.settings_play_page_orientation_vertical);
+                break;
+            case "horizontal":
+                orientationadioGroup.check(R.id.settings_play_page_orientation_horizontal);
+                break;
+        }
+        oautoradioButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("orientation", "auto");
+                editor.apply();
+                new MaterialAlertDialogBuilder(SettingsActivity.this)
+                        .setTitle("重启应用生效")
+                        .setMessage("此操作需要重启应用")
+                        .setPositiveButton("立即重启", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = getBaseContext().getPackageManager()
+                                        .getLaunchIntentForPackage(getBaseContext().getPackageName());
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 处理取消按钮的点击事件
+                            }
+                        })
+                        .show();
+            }
+        });
+        verticalradioButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("orientation", "vertical");
+                editor.apply();
+                new MaterialAlertDialogBuilder(SettingsActivity.this)
+                        .setTitle("重启应用生效")
+                        .setMessage("此操作需要重启应用")
+                        .setPositiveButton("立即重启", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = getBaseContext().getPackageManager()
+                                        .getLaunchIntentForPackage(getBaseContext().getPackageName());
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 处理取消按钮的点击事件
+                            }
+                        })
+                        .show();
+            }
+        });
+        horizontalradioButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("orientation", "horizontal");
+                editor.apply();
+                new MaterialAlertDialogBuilder(SettingsActivity.this)
+                        .setTitle("重启应用生效")
+                        .setMessage("此操作需要重启应用")
+                        .setPositiveButton("立即重启", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = getBaseContext().getPackageManager()
+                                        .getLaunchIntentForPackage(getBaseContext().getPackageName());
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 处理取消按钮的点击事件
+                            }
+                        })
+                        .show();
             }
         });
 
@@ -326,6 +421,10 @@ public class SettingsActivity extends AppCompatActivity {
         autoradioButton=findViewById(R.id.settings_total_theme_auto);
         brightradioButton=findViewById(R.id.settings_total_theme_bright);
         darkradioButton=findViewById(R.id.settings_total_theme_dark);
+        orientationadioGroup=findViewById(R.id.settings_play_page_orientation);
+        oautoradioButton=findViewById(R.id.settings_play_page_orientation_auto);
+        verticalradioButton=findViewById(R.id.settings_play_page_orientation_vertical);
+        horizontalradioButton=findViewById(R.id.settings_play_page_orientation_horizontal);
         tipswitch=findViewById(R.id.settings_total_tip_switch);
         tipimageView=findViewById(R.id.settings_total_tip_info);
         historynp=findViewById(R.id.settings_main_history_number_picker);

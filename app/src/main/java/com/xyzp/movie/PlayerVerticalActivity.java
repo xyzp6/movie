@@ -55,7 +55,7 @@ import bean.Video;
 import bean.VideoDatabaseHelper;
 
 
-public class PlayerActivity extends Activity {
+public class PlayerVerticalActivity extends Activity {
     private LightSensorUtils lightSensorUtils;
     private final Set<TrackGroup> audioSet=new HashSet<>();
     private final Set<TrackGroup> subtitleSet=new HashSet<>();
@@ -89,7 +89,7 @@ public class PlayerActivity extends Activity {
 
         sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
         tip=sharedPreferences.getBoolean("tip",true);
-        setContentView(R.layout.activity_player);
+        setContentView(R.layout.activity_player_vertical);
 
         init();
         if(savedInstanceState != null) {
@@ -103,7 +103,7 @@ public class PlayerActivity extends Activity {
         movieid = intent.getIntExtra("movie_id",0);
         videoList= (List<Video>) intent.getSerializableExtra("movie_video_list");
         prepare(position,url);
-        
+
         if(playSituation) { //回后台前正在播放，第一次播放
             player.play();
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -122,7 +122,7 @@ public class PlayerActivity extends Activity {
                 @Override
                 public void getLight(float value) {
                     if (value<10 && !reminder) { //第两次reminder使用
-                        Toast.makeText(PlayerActivity.this, "当前环境过于昏暗！", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PlayerVerticalActivity.this, "当前环境过于昏暗！", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -287,10 +287,10 @@ public class PlayerActivity extends Activity {
         moreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupMenu popupMenu = new PopupMenu(PlayerActivity.this, v);
+                PopupMenu popupMenu = new PopupMenu(PlayerVerticalActivity.this, v);
                 popupMenu.getMenuInflater().inflate(R.menu.movie_menu, popupMenu.getMenu());
                 // 设置菜单项的点击监听器
-                MovieMenu movieMenu=new MovieMenu(PlayerActivity.this,player,checkedItem,videoList,audioSet,subtitleSet,trackSelector);
+                MovieMenuVertical movieMenu=new MovieMenuVertical(PlayerVerticalActivity.this,player,checkedItem,videoList,audioSet,subtitleSet,trackSelector);
                 popupMenu.setOnMenuItemClickListener(movieMenu);
                 popupMenu.show();
             }

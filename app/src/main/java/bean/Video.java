@@ -14,6 +14,7 @@ public class Video implements Serializable{
     private String path;
     private String uri;
     private long size;
+    private long duration;
     private String folderName;
 
     /**
@@ -23,7 +24,7 @@ public class Video implements Serializable{
         super();
     }
 
-    public Video(int id,int width,int height, String title, String path,String uri, long size,String folderName) {
+    public Video(int id,int width,int height, String title, String path,String uri, long size,long duration,String folderName) {
         super();
         this.id = id;
         this.width = width;
@@ -32,6 +33,7 @@ public class Video implements Serializable{
         this.path = path;
         this.uri=uri;
         this.size = size;
+        this.duration=duration;
         this.folderName=folderName;
     }
 
@@ -89,6 +91,13 @@ public class Video implements Serializable{
 
     public void setSize(long size) {
         this.size = size;
+    }
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 
     public String getFolderName() {

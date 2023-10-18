@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.provider.MediaStore;
@@ -24,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.xyzp.movie.MainActivity;
 import com.xyzp.movie.PlayerActivity;
+import com.xyzp.movie.PlayerVerticalActivity;
 import com.xyzp.movie.R;
 
 import java.io.Serializable;
@@ -42,6 +44,7 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
     private final List<Long> timelist=new ArrayList<>();
     private final List<String> titlelist=new ArrayList<>();
     private List<VideoHistory> videoHistories;
+    private String orientation;
     private View inflater;
     //构造方法，传入数据,即把展示的数据源传进来，并且复制给一个全局变量，以后的操作都在该数据源上进行
     public ListMovieHistoryAdapter(Context context, VideoProvider videoProvider,int cnt){ //-1指无限制
@@ -58,6 +61,8 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
             timelist.add(videoHistory.getProgress());
             titlelist.add(videoHistory.getTitle());
         }
+        SharedPreferences sharedPreferences = context.getSharedPreferences("Settings",MODE_PRIVATE);
+        orientation=sharedPreferences.getString("orientation","auto");
     }
 
     //由于RecycleAdapterDome继承自RecyclerView.Adapter,则必须重写onCreateViewHolder()，onBindViewHolder()，getItemCount()
@@ -74,9 +79,28 @@ public class ListMovieHistoryAdapter extends RecyclerView.Adapter<ListMovieHisto
                 int position = myViewHolder.getBindingAdapterPosition();
                 int id=idlist.get(position);
                 //传递
-                Intent intent = new Intent(context, PlayerActivity.class);
+                Intent intent=new Intent();
+                switch (orientation) {
+                    case "auto":
+                        if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                            //横屏
+                            intent = new Intent(context, PlayerActivity.class);
+                        } else {
+                            //竖屏
+                            intent = new Intent(context, PlayerVerticalActivity.class);
+                        }
+                        break;
+                    case "vertical":
+                        intent = new Intent(context, PlayerVerticalActivity.class);
+                        break;
+                    case "horizontal":
+                        intent = new Intent(context, PlayerActivity.class);
+                        break;
+                }
+                List<Video> list=videoProvider.getMapList(videoProvider.getFolderNameFromId(id));
+                intent.putExtra("movie_position",videoProvider.getPosition(list,id));
                 intent.putExtra("movie_id",id);
-                intent.putExtra("movie_path",videoProvider.getPathFromId(id));
+                intent.putExtra("movie_video_list",(Serializable) list);
                 context.startActivity(intent);
             }
         });

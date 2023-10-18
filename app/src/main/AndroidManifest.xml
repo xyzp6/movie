@@ -22,6 +22,11 @@
             android:exported="true" />
         <activity
             android:name=".PlayerActivity"
+            android:screenOrientation="landscape"
+            android:exported="true" />
+        <activity
+            android:name=".PlayerVerticalActivity"
+            android:screenOrientation="portrait"
             android:exported="true" />
         <activity
             android:name=".SettingsActivity"

@@ -77,7 +77,7 @@ import bean.Video;
 import bean.VideoProvider;
 
 public class MainActivity extends AppCompatActivity {
-    private final int DELETE_VIDEO_CODE=4;
+    public static final int DELETE_VIDEO_CODE=4;
     private ImageView mainbg;
     private SearchView mainsearchview;
     private SearchBar mainsearchbar;
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     private NavigationRailView navigationRailView;
     private BottomNavigationView bottomNavigationView;
     private MaterialToolbar historymaterialToolbar;
-    private String folder_path;
+    private String folder_path,orientation="auto";
     private VideoProvider provider;
     private SharedPreferences sharedPreferences;
     private FolderAdapter folderAdapter;
@@ -179,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
                 application.hasShownGreeting = true;
             }
         }
+        orientation=sharedPreferences.getString("orientation","auto");
         //设置暗色模式
         String theme=sharedPreferences.getString("theme","auto");
         if (theme.equals("auto")) {
@@ -347,7 +348,24 @@ public class MainActivity extends AppCompatActivity {
                                 if(Objects.requireNonNull(textInputEditText.getText()).toString().equals("")) {
                                     Toast.makeText(MainActivity.this, "请输入URL", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+                                    Intent intent=new Intent();
+                                    switch (orientation) {
+                                        case "auto":
+                                            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                                                //横屏
+                                                intent = new Intent(MainActivity.this, PlayerActivity.class);
+                                            } else {
+                                                //竖屏
+                                                intent = new Intent(MainActivity.this, PlayerVerticalActivity.class);
+                                            }
+                                            break;
+                                        case "vertical":
+                                            intent = new Intent(MainActivity.this, PlayerVerticalActivity.class);
+                                            break;
+                                        case "horizontal":
+                                            intent = new Intent(MainActivity.this, PlayerActivity.class);
+                                            break;
+                                    }
                                     intent.putExtra("movie_url",textInputEditText.getText().toString());
                                     startActivity(intent);
                                 }
@@ -472,7 +490,24 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void OnItemClick(List<Video> list, int position) {
                     if(selectvideo.size()==0) {
-                        Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+                        Intent intent=new Intent();
+                        switch (orientation) {
+                            case "auto":
+                                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                                    //横屏
+                                    intent = new Intent(MainActivity.this, PlayerActivity.class);
+                                } else {
+                                    //竖屏
+                                    intent = new Intent(MainActivity.this, PlayerVerticalActivity.class);
+                                }
+                                break;
+                            case "vertical":
+                                intent = new Intent(MainActivity.this, PlayerVerticalActivity.class);
+                                break;
+                            case "horizontal":
+                                intent = new Intent(MainActivity.this, PlayerActivity.class);
+                                break;
+                        }
                         intent.putExtra("movie_position",position);
                         intent.putExtra("movie_id",list.get(position).getId());
                         intent.putExtra("movie_video_list",(Serializable) list);

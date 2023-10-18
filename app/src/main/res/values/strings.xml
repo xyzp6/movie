@@ -35,7 +35,7 @@
     <string name="subtitle">字幕</string>
 
     <string name="settings">设置</string>
-    <string name="total_settings">整体设置</string>
+    <string name="total_settings">整体</string>
     <string name="total_tip">温馨提醒</string>
     <string name="total_tip_time">开屏时间问候语</string>
     <string name="total_tip_brightness">视频播放亮度提醒</string>
@@ -43,13 +43,18 @@
     <string name="total_auto">跟随系统</string>
     <string name="total_bright">亮色</string>
     <string name="total_dark">暗色</string>
-    <string name="main_settings">主页设置</string>
+    <string name="main_settings">主页</string>
     <string name="picture_main">为您的主页选一张好看的图片吧！</string>
     <string name="picture_main_button">点我选择</string>
     <string name="picture_main_button_default">恢复默认</string>
-    <string name="main_settings_history">主页历史页设置</string>
+    <string name="main_settings_history">主页历史页</string>
     <string name="num_main_settings_history">展示记录数量</string>
     <string name="num_main_settings_history_tip">(切换后立即生效)</string>
+    <string name="play_page">播放页</string>
+    <string name="play_page_orientation">选择页面朝向</string>
+    <string name="orientation_auto">跟随屏幕</string>
+    <string name="orientation_horizontal">横屏</string>
+    <string name="orientation_vertical">竖屏</string>
     <string name="about">关于</string>
     <string name="thanks">感谢您的使用！</string>
     <string name="github">github</string>

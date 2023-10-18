@@ -225,7 +225,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:src="@drawable/home_fill1_wght400_grad0_opsz32"
+                        android:src="@drawable/history_fill0_wght400_grad0_opsz32"
                         android:layout_centerVertical="true" />
                     <TextView
                         android:layout_width="wrap_content"
@@ -273,6 +273,77 @@
                 </RelativeLayout>
             </RelativeLayout>
 
+            <!-- 播放页 -->
+            <RelativeLayout
+                android:id="@+id/settings_play"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_below="@+id/settings_main_history"
+                android:background="@drawable/rounded_corners" >
+
+                <RelativeLayout
+                    android:id="@+id/settings_play_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp" >
+                    <ImageView
+                        android:id="@+id/settings_play_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:src="@drawable/play_circle_fill1_wght400_grad0_opsz32"
+                        android:layout_centerVertical="true" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/play_page"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:layout_marginStart="10dp"
+                        android:layout_toEndOf="@+id/settings_play_iv"
+                        android:layout_centerVertical="true" />
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/settings_play_page_orientation_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/settings_play_top"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/play_page_orientation"/>
+
+                <RadioGroup
+                    android:id="@+id/settings_play_page_orientation"
+                    android:checkedButton="@+id/settings_play_page_orientation_auto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_below="@+id/settings_play_page_orientation_tv" >
+                    <RadioButton
+                        android:id="@+id/settings_play_page_orientation_auto"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/orientation_auto"/>
+                    <RadioButton
+                        android:id="@+id/settings_play_page_orientation_vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/orientation_vertical"/>
+                    <RadioButton
+                        android:id="@+id/settings_play_page_orientation_horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/orientation_horizontal"/>
+                </RadioGroup>
+            </RelativeLayout>
+
             <!-- 关于 -->
             <RelativeLayout
                 android:id="@+id/settings_about"
@@ -282,7 +353,7 @@
                 android:layout_marginEnd="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:layout_below="@+id/settings_main_history"
+                android:layout_below="@+id/settings_play"
                 android:background="@drawable/rounded_corners" >
 
                 <RelativeLayout

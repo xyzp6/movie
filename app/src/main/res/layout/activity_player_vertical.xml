@@ -24,6 +24,16 @@
             android:layout_height="wrap_content"
             android:src="@drawable/arrow_back_fill0_wght400_grad0_opsz48" />
 
+        <TextView
+            android:id="@+id/player_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:layout_centerVertical="true"
+            android:textSize="20sp"
+            android:layout_toStartOf="@+id/moreButton"
+            android:layout_toEndOf="@+id/backButton" />
+
         <ImageView
             android:id="@+id/moreButton"
             android:layout_width="wrap_content"
